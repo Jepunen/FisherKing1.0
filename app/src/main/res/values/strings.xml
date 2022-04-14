@@ -1,11 +1,19 @@
 <resources>
     <string name="app_name">Fisher King</string>
+
     <string name="open">open</string>
     <string name="close">close</string>
+
+    <!-- LOGIN / REGISTER PAGE TEXT -->
     <string name="username">Username</string>
     <string name="password">Password</string>
+    <string name="email">Email</string>
     <string name="remember_me">Remember me</string>
     <string name="login">Login</string>
     <string name="register">Register</string>
     <string name="no_account">Don\'t have an account yet?</string>
+    <string name="enter_credentials">Enter credentials</string>
+    <string name="empty_fields">Please fill in all the fields</string>
+    <!-- LOGIN / REGISTER PAGE TEXT - END -->
+
 </resources>

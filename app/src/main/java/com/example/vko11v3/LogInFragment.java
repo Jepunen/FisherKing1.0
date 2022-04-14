@@ -16,9 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import java.util.Objects;
-
-public class LogInFragment extends Fragment{
+public class LogInFragment extends Fragment {
 
     @Nullable
     @Override
@@ -49,7 +47,7 @@ public class LogInFragment extends Fragment{
             }
         });
 
-        Button registerButton = view.findViewById(R.id.loginRegister);
+        Button registerButton = view.findViewById(R.id.loginRegisterButton);
         registerButton.setOnClickListener(view12 -> {
             // TODO Add open register fragment
         });
@@ -59,6 +57,9 @@ public class LogInFragment extends Fragment{
 
     }
 
+    // Checks if the username and password combination exists
+    // and if that is the case, redirects user to the apps home page
+    // Return false in case of user - pass not matching / existing
     private boolean checkUser (String username, String password) {
 
         String savedPassword;
@@ -68,7 +69,6 @@ public class LogInFragment extends Fragment{
 
         if (password.equals(savedPassword)) {
             // TODO Send user to main page
-
         }
 
         return false;
