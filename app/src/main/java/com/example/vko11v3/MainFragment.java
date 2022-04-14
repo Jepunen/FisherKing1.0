@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,6 +25,8 @@ public class MainFragment extends Fragment{
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ((DrawerLocker) requireActivity()).setDrawerLocked(false);
+
         TextView textView = view.findViewById(R.id.textView);
         textView.setTextSize(Settings.getInstance().fonttikoko);
         textView.setAllCaps(Settings.getInstance().caps);

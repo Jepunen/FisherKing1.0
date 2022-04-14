@@ -27,6 +27,7 @@ public class SettingsFragment extends Fragment{
     @Override
     public void onViewCreated(View view, Bundle savedInstance){
         //käytä view muuttujaa findViewbyIDn sijaan view.findViewById
+        ((DrawerLocker) requireActivity()).setDrawerLocked(false);
 
         setupSeekbar(view);
         leveysSeekbar(view);
