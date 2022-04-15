@@ -48,7 +48,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((DrawerLocker) requireActivity()).setDrawerLocked(false);
+        ((NavigationVisibility) requireActivity()).hideNavToolbar(false);
 
         TextView textView = view.findViewById(R.id.textView);
         textView.setTextSize(Settings.getInstance().fonttikoko);
@@ -121,7 +121,8 @@ public class MainFragment extends Fragment {
 
     //get location:
     private void getLocation() {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             Snackbar.make(getView(), "Give permissions **temp**", 3);

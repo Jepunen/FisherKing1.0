@@ -9,14 +9,15 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.google.android.material.navigation.NavigationView;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, DrawerLocker {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NavigationVisibility {
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
     Toolbar toolbar;
@@ -44,13 +45,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         actionBarDrawerToggle.syncState();
 
-        // load default fragment
+
+        SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+        // sharedPref.edit().clear().apply(); // Uncomment to clear USER_DATA file
+
+        // -- Load first fragment --
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.container_fragment, new LogInFragment());
+
+        // Check if user has Remember me option checked, and who is logged in
+        // depending on that set the default fragment as login fragment or main fragment
+        if ( sharedPref.getString("logged_in_as", null) != null ) {
+            fragmentTransaction.replace(R.id.container_fragment, new MainFragment());
+        } else {
+            fragmentTransaction.replace(R.id.container_fragment, new LogInFragment());
+        }
         fragmentTransaction.commit();
 
-
+        // -- Load First fragment - END --
     }
 
     @Override
@@ -74,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void setDrawerLocked(boolean shouldLock) {
+    public void hideNavToolbar(boolean shouldLock) {
         if(shouldLock){
             toolbar.setVisibility(View.GONE);
         }else{

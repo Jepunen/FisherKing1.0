@@ -2,7 +2,6 @@ package com.example.vko11v3;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,9 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import java.util.Objects;
-import java.util.Set;
-
 public class LogInFragment extends Fragment {
 
     TextView message;
@@ -35,26 +31,28 @@ public class LogInFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((DrawerLocker) requireActivity()).setDrawerLocked(true);
 
-        // Get screen elements by ID
+        // Hides the navigation toolbar from the user
+        ((NavigationVisibility) requireActivity()).hideNavToolbar(true);
+
+        // -- Get screen elements by ID --
         message  = view. findViewById(R.id.loginMessage);
         EditText username = view.findViewById(R.id.loginUsername);
         EditText password = view.findViewById(R.id.loginPassword);
         @SuppressLint("UseSwitchCompatOrMaterialCode")
-        Switch rememberMe = view.findViewById(R.id.loginRememberMe); // TODO do this :)
+        Switch rememberMe = view.findViewById(R.id.loginRememberMe);
 
-        // Get screen elements by ID - END
+        // -- Get screen elements by ID - END --
 
 
-        // Get buttons and add listeners
+        // -- Get buttons and add listeners --
         Button loginButton = view.findViewById(R.id.loginButton);
         loginButton.setOnClickListener(view1 -> {
 
             String user = username.getText().toString();
             String pass = password.getText().toString();
 
-            this.checkUser(user, pass);
+            this.checkUser(user, pass, rememberMe.isChecked());
 
         });
 
@@ -67,27 +65,38 @@ public class LogInFragment extends Fragment {
             transaction.commit();
         });
 
-        // Get buttons and add listeners - END
+        // -- Get buttons and add listeners - END --
 
     }
 
     // Checks if the username and password combination exists
     // and if that is the case, redirects user to the apps home page
-    // Return false in case of user - pass not matching / existing
     @SuppressLint("SetTextI18n")
-    public void checkUser (String username, String password) {
+    public void checkUser (String username, String password, boolean stayLoggedIn) {
 
         String savedPassword;
 
-        SharedPreferences sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
         savedPassword = sharedPref.getString(username, null);
 
         if (password.equals(savedPassword)) {
             message.setText("Successfully logged in");
+
+            // Checks if logged in is enabled.
+            if ( stayLoggedIn ) {
+                // Adds user as logged in
+                sharedPref.edit().putString("logged_in_as", username).apply();
+            } else {
+                // Either does nothing, or removes user from being logged in
+                sharedPref.edit().putString("logged_in_as", null).apply();
+            }
+
+            // Redirects user to the home page since login was successful
             Fragment main = new MainFragment();
             FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_fragment, main ); // give your fragment container id in first parameter
+            transaction.replace(R.id.container_fragment, main );
             transaction.commit();
+
         } else {
             message.setText(R.string.wrong_credentials);
         }
