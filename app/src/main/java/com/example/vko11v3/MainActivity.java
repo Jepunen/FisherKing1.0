@@ -87,10 +87,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
  * https://www.youtube.com/watch?v=USenYOBJw9Y
  * https://www.studytonight.com/android/get-edittext-set-textview
  *
- *
- * Ei tässä versiossa:
- * https://guides.codepath.com/android/fragment-navigation-drawer
- * https://medium.com/@saranyaan2710/steps-to-create-a-android-menu-bbb17edd07af
- * https://www.youtube.com/watch?v=EH0ixNRoS8g
+ * Location:
+ * https://www.youtube.com/watch?v=Ak1O9Gip-pg
  *
  */
