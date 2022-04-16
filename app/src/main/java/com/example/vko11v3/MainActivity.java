@@ -11,11 +11,16 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -70,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Check if user has Remember me option checked, and who is logged in
         // depending on that set the default fragment as login fragment or main fragment
         if ( sharedPref.getString("logged_in_as", null) != null ) {
-            fragmentTransaction.replace(R.id.container_fragment, new MainFragment());
+            fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
             setNavHeaderText();
         } else {
             fragmentTransaction.replace(R.id.container_fragment, new LogInFragment());
@@ -154,6 +159,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             headerText.setText("Who dis? Anonymous?");
         }
+    }
+
+    @Override
+    public void createPopup(View view) {
+
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.fragment_add_catch);
+        dialog.show();
     }
 }
 

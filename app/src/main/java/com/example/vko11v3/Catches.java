@@ -9,6 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -22,8 +24,12 @@ import android.widget.TextView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.ArrayList;
+
 
 public class Catches extends Fragment {
+
+    ArrayList<CatchesData> catches = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,6 +43,27 @@ public class Catches extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
 
+        setUpRecyclerView();
+
+        CatchesRecyclerViewAdapter adapter = new CatchesRecyclerViewAdapter(getActivity(),
+                catches);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+    }
+
+    private void setUpRecyclerView (  ) {
+        String[] titles = {"title1", "title2", "title3", "title4", "title2", "title3", "title4"};
+        String[] details = {"details1", "details2", "details3", "details4", "details2", "details3", "details4"};
+        String[] timePlace = {"timePlace1", "timePlace2", "timePlace3", "timePlace4", "timePlace2", "timePlace3", "timePlace4"};
+
+        for ( int i=0; i< titles.length; i++ ) {
+            catches.add(new CatchesData(
+                    titles[i],
+                    details[i],
+                    timePlace[i]
+            ));
+        }
     }
 }

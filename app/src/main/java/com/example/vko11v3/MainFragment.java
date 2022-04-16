@@ -20,11 +20,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
@@ -117,6 +119,14 @@ public class MainFragment extends Fragment {
             }
         });
 
+        FloatingActionButton addCatch = view.findViewById(R.id.floatingAddCatch);
+        addCatch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainInterface) requireActivity()).createPopup(view);
+            }
+        });
+
     }
 
     //get location:
@@ -128,12 +138,12 @@ public class MainFragment extends Fragment {
             Snackbar.make(getView(), "Give permissions **temp**", 3);
 
             // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //  ActivityCompat#requestPermissions
+            //  here to request the missing permissions, and then overriding
+            //  public void onRequestPermissionsResult(int requestCode, String[] permissions,
             //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            //  to handle the case where the user grants the permission. See the documentation
+            //  for ActivityCompat#requestPermissions for more details.
             return;
         }
         fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {

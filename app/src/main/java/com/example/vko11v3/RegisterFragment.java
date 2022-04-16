@@ -21,6 +21,8 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.Objects;
+
 public class RegisterFragment extends Fragment {
 
     @Nullable
@@ -87,8 +89,8 @@ public class RegisterFragment extends Fragment {
         Button wipe = view.findViewById(R.id.registerWipeData);
         wipe.setOnClickListener(view1 -> {
 
-            SharedPreferences sharedPrefDefault = getActivity().getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences sharedPref = getActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+            SharedPreferences sharedPrefDefault = requireActivity().getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
 
             sharedPref.edit().clear().apply();
             sharedPrefDefault.edit().clear().apply();
