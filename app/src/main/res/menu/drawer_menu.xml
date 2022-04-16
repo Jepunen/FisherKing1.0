@@ -11,6 +11,10 @@
                 android:id="@+id/navigationSettings"
                 android:icon="@drawable/ic_baseline_settings_24"
                 android:title="@string/menu_item_1" />
+            <item
+                android:id="@+id/navigationCatches"
+                android:icon="@drawable/ic_baseline_settings_24"
+                android:title="@string/menu_catches" />
         </menu>
     </item>
 

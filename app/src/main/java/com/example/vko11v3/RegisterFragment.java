@@ -84,6 +84,16 @@ public class RegisterFragment extends Fragment {
         ImageButton goBack = view.findViewById(R.id.registerGoBack);
         goBack.setOnClickListener(view12 -> goToLoginPage());
 
+        Button wipe = view.findViewById(R.id.registerWipeData);
+        wipe.setOnClickListener(view1 -> {
+
+            SharedPreferences sharedPrefDefault = getActivity().getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = getActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+
+            sharedPref.edit().clear().apply();
+            sharedPrefDefault.edit().clear().apply();
+        });
+
         // -- Get buttons and add listeners - END --
     }
 

@@ -22,32 +22,34 @@
         android:id="@+id/registerUsername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:autofillHints=""
         android:ems="10"
         android:hint="@string/username"
         android:inputType="textPersonName"
         android:minHeight="48dp"
+        android:textColorHint="#757575"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/registerTitle"
-        app:layout_constraintVertical_bias="0.333"
-        android:autofillHints="" />
+        app:layout_constraintVertical_bias="0.333" />
 
     <EditText
         android:id="@+id/registerPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:autofillHints=""
         android:ems="10"
         android:hint="@string/password"
         android:inputType="textPassword"
         android:minHeight="48dp"
+        android:textColorHint="#757575"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/registerUsername"
-        app:layout_constraintVertical_bias="0.062"
-        android:autofillHints="" />
+        app:layout_constraintVertical_bias="0.062" />
 
     <Button
         android:id="@+id/registerButton"
@@ -98,7 +100,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.444"
         app:srcCompat="@android:drawable/ic_menu_revert"
-        tools:ignore="SpeakableTextPresentCheck,DuplicateSpeakableTextCheck" />
+        tools:ignore="SpeakableTextPresentCheck,DuplicateSpeakableTextCheck,ImageContrastCheck" />
 
     <TextView
         android:id="@+id/textView7"
@@ -111,5 +113,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/registerGoBack"
         app:layout_constraintVertical_bias="0.001" />
+
+    <Button
+        android:id="@+id/registerWipeData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wipe user data"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

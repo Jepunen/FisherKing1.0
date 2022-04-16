@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         actionBarDrawerToggle.syncState();
 
-        // Navigation drawer header text edit
+        // Navigation drawer header text
         View headerView = navigationView.getHeaderView(0);
         headerText = (TextView) headerView.findViewById(R.id.drawer_header);
 
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // -- Load First fragment - END --
 
 
-        // Night mode switch listener
+        // Nav drawer night mode switch listener
         nightModeSwitch = navigationView.getMenu().findItem(R.id.navigationNightModeSwitch);
         nightMode = (Switch) nightModeSwitch.getActionView().findViewById(R.id.drawerSwitch);
         nightMode.setChecked(true);
@@ -108,6 +108,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragmentManager = getSupportFragmentManager();
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.container_fragment, new SettingsFragment());
+            fragmentTransaction.commit();
+        }
+
+        if(menuItem.getItemId() == R.id.navigationCatches) {
+            fragmentManager = getSupportFragmentManager();
+            fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.container_fragment, new Catches());
             fragmentTransaction.commit();
         }
 

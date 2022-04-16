@@ -91,7 +91,7 @@ public class LogInFragment extends Fragment {
                 sharedPref.edit().putString("logged_in_as", null).apply();
             }
             sharedPref.edit().putString("current_user", username).apply();
-
+            ((MainInterface) requireActivity()).setNavHeaderText();
             // Redirects user to the home page since login was successful
             Fragment main = new MainFragment();
             FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
