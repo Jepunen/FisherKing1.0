@@ -21,8 +21,6 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.Objects;
-
 public class RegisterFragment extends Fragment {
 
     @Nullable
@@ -37,7 +35,7 @@ public class RegisterFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Hides the navigation toolbar from the user
-        ((NavigationVisibility) requireActivity()).hideNavToolbar(true);
+        ((MainInterface) requireActivity()).hideNavToolbar(true);
 
         // -- Get screen elements by ID --
         TextView message  = view.findViewById(R.id.registerMessage);

@@ -33,7 +33,7 @@ public class LogInFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Hides the navigation toolbar from the user
-        ((NavigationVisibility) requireActivity()).hideNavToolbar(true);
+        ((MainInterface) requireActivity()).hideNavToolbar(true);
 
         // -- Get screen elements by ID --
         message  = view. findViewById(R.id.loginMessage);
@@ -90,6 +90,7 @@ public class LogInFragment extends Fragment {
                 // Either does nothing, or removes user from being logged in
                 sharedPref.edit().putString("logged_in_as", null).apply();
             }
+            sharedPref.edit().putString("current_user", username).apply();
 
             // Redirects user to the home page since login was successful
             Fragment main = new MainFragment();

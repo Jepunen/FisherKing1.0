@@ -1,5 +1,6 @@
 package com.example.vko11v3;
 
-public interface NavigationVisibility {
+public interface MainInterface {
     void hideNavToolbar(boolean hidden);
+    void setNavHeaderText();
 }

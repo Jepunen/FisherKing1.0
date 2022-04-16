@@ -48,7 +48,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((NavigationVisibility) requireActivity()).hideNavToolbar(false);
+        ((MainInterface) requireActivity()).hideNavToolbar(false);
 
         TextView textView = view.findViewById(R.id.textView);
         textView.setTextSize(Settings.getInstance().fonttikoko);
@@ -95,7 +95,7 @@ public class MainFragment extends Fragment {
         address = view.findViewById(R.id.address);
 
 
-        //get location:
+        // get location:
         // Initialize fusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity()); //ei pelkkä this, koska ollaan fragmentissa
 

@@ -3,29 +3,38 @@ package com.example.vko11v3;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, NavigationVisibility {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainInterface {
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
     Toolbar toolbar;
     NavigationView navigationView;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
+    MenuItem nightModeSwitch;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    Switch nightMode;
+    TextView headerText;
 
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,9 +54,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         actionBarDrawerToggle.syncState();
 
+        // Navigation drawer header text edit
+        View headerView = navigationView.getHeaderView(0);
+        headerText = (TextView) headerView.findViewById(R.id.drawer_header);
+
 
         SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
         // sharedPref.edit().clear().apply(); // Uncomment to clear USER_DATA file
+
 
         // -- Load first fragment --
         fragmentManager = getSupportFragmentManager();
@@ -57,33 +71,62 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // depending on that set the default fragment as login fragment or main fragment
         if ( sharedPref.getString("logged_in_as", null) != null ) {
             fragmentTransaction.replace(R.id.container_fragment, new MainFragment());
+            setNavHeaderText();
         } else {
             fragmentTransaction.replace(R.id.container_fragment, new LogInFragment());
         }
         fragmentTransaction.commit();
-
         // -- Load First fragment - END --
+
+
+        // Night mode switch listener
+        nightModeSwitch = navigationView.getMenu().findItem(R.id.navigationNightModeSwitch);
+        nightMode = (Switch) nightModeSwitch.getActionView().findViewById(R.id.drawerSwitch);
+        nightMode.setChecked(true);
+        nightMode.setOnCheckedChangeListener((compoundButton, b) -> {
+            if ( b ) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
+        });
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         drawerLayout.closeDrawer(GravityCompat.START);
-        if(menuItem.getItemId() == R.id.home) {
+        // Home page
+        if(menuItem.getItemId() == R.id.navigationHome) {
             fragmentManager = getSupportFragmentManager();
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.container_fragment, new MainFragment());
             fragmentTransaction.commit();
         }
 
-        if(menuItem.getItemId() == R.id.settings) {
+        // 2nd page
+        if(menuItem.getItemId() == R.id.navigationSettings) {
             fragmentManager = getSupportFragmentManager();
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.container_fragment, new SettingsFragment());
             fragmentTransaction.commit();
         }
 
+        // Logout
+        if(menuItem.getItemId() == R.id.navigationLogout) {
+
+            SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+            sharedPref.edit().putString("logged_in_as", null).apply();
+            sharedPref.edit().putString("current_user", null).apply();
+
+            fragmentManager = getSupportFragmentManager();
+            fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.container_fragment, new LogInFragment());
+            fragmentTransaction.commit();
+        }
         return true;
     }
+
+
 
     @Override
     public void hideNavToolbar(boolean shouldLock) {
@@ -91,6 +134,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             toolbar.setVisibility(View.GONE);
         }else{
             toolbar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void setNavHeaderText() {
+        SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+        String user = sharedPref.getString("current_user", null);
+        if ( user != null ) {
+            headerText.setText("Welcome back " + user);
+        } else {
+            headerText.setText("Who dis? Anonymous?");
         }
     }
 }
