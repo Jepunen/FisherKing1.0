@@ -15,12 +15,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -138,8 +134,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-
-
     @Override
     public void hideNavToolbar(boolean shouldLock) {
         if(shouldLock){
@@ -162,12 +156,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void createPopup(View view) {
-
+    public void showAddCatchPopup(View view) {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.fragment_add_catch);
         dialog.show();
     }
+
+    @SuppressLint({"CommitPrefEdits", "SetTextI18n"})
+    @Override
+    public void showAddUsernamePopup(View view) {
+
+        AddUsernamePopup dialog = new AddUsernamePopup();
+        dialog.show(getSupportFragmentManager(), "Add username");
+
+    }
+
 }
 
 /* katsottu apuja:

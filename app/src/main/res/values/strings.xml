@@ -11,11 +11,20 @@
     <string name="email">Email</string>
     <string name="remember_me">Remember me</string>
     <string name="login">Login</string>
+    <string name="login_fingerprint">Login using fingerprint</string>
     <string name="register">Register</string>
     <string name="no_account">Don\'t have an account yet?</string>
     <string name="back_to_login">Back to login</string>
     <string name="wrong_credentials">Incorrect username or password</string>
     <string name="empty_field">All fields required for registration</string>
+    <string name="password_requirements">
+        Password requirements\n
+        \t\u2022 12-20 characters\n
+        \t\u2022 a lower case character\n
+        \t\u2022 an upper case character\n
+        \t\u2022 a number\n
+        \t\u2022 a special character\n
+    </string>
     <!-- LOGIN / REGISTER PAGE TEXT - END -->
 
     <!-- NAVIGATION MENU -->
@@ -31,5 +40,10 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <!-- NAVIGATION MENU - END -->
+
+    <!-- USERNAME POPUP - START -->
+    <string name="add_username">Add a username for fingerprint login</string>
+    <string name="add">Add</string>
+    <!-- USERNAME POPUP - END -->
 
 </resources>

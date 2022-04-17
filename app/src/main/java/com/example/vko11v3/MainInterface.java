@@ -5,5 +5,6 @@ import android.view.View;
 public interface MainInterface {
     void hideNavToolbar(boolean hidden);
     void setNavHeaderText();
-    void createPopup(View view);
+    void showAddCatchPopup(View view);
+    void showAddUsernamePopup(View view);
 }

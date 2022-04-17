@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -123,7 +122,7 @@ public class MainFragment extends Fragment {
         addCatch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainInterface) requireActivity()).createPopup(view);
+                ((MainInterface) requireActivity()).showAddCatchPopup(view);
             }
         });
 

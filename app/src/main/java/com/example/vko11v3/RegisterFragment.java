@@ -21,7 +21,8 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RegisterFragment extends Fragment {
 
@@ -60,25 +61,46 @@ public class RegisterFragment extends Fragment {
                 message.setText(R.string.empty_field);
 
             } else {
-                // Create a user with it's username as key and password as the value.
-                // Create another key as username:email with email as its value
-                SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
 
-                // Checks if user with the name already exists
-                // if   = user doesn't exist -> create user
-                // else = user exists -> prompt user of existing account
-                if ( !sharedPref.contains(user) ) {
-                    editor.putString(user, pass);
-                    editor.putString(user + ":email", emal);
-                    editor.apply();
-                    Snackbar snackMessage = Snackbar.make(requireView(), "Account created, try logging in", BaseTransientBottomBar.LENGTH_LONG);
-                    snackMessage.show();
-
-                    goToLoginPage();
+                // Checks and tells user if their password is a strong password
+                if (passwordChecker(pass, "^.{12,20}$")) {
+                    message.setText("Password must be between 12-20 characters");
+                } else if (passwordChecker(pass, ".*[a-z].*")) {
+                    message.setText("Password must include at least one lower case letter");
+                } else if (passwordChecker(pass, ".*[A-Z].*")) {
+                    message.setText("Password must include at least one upper case letter");
+                } else if (passwordChecker(pass, ".*[0-9].*")) {
+                    message.setText("Password must include at least one number");
+                } else if (passwordChecker(pass, ".*[!\"`'#%&,:;<>=@{}~\\$\\(\\)\\*\\+\\/\\\\\\?\\[\\]\\^\\|].*")) {
+                    message.setText("Password must include a special character");
                 } else {
-                    Snackbar snackMessage = Snackbar.make(requireView(), "An account with this username already exists", BaseTransientBottomBar.LENGTH_LONG);
-                    snackMessage.show();
+
+                    // Create a user with it's username as key and password as the value.
+                    // Create another key as username:email with email as its value
+                    SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+
+                    // Checks if user with the name already exists
+                    // if   = user doesn't exist -> create user
+                    // else = user exists -> prompt user of existing account
+                    if ( !sharedPref.contains(user) ) {
+
+                        // Hash-512 + salt password
+                        byte[] salt = PasswordHashSalt.getSalt();
+                        String hashSaltPassword = PasswordHashSalt.getSecurePassword(pass, salt);
+
+                        editor.putString(user, hashSaltPassword);
+                        editor.putString(user + ":email", emal);
+                        editor.apply();
+                        Snackbar snackMessage = Snackbar.make(requireView(), "Account created, try logging in", BaseTransientBottomBar.LENGTH_LONG);
+                        snackMessage.show();
+
+                        goToLoginPage();
+                    } else {
+                        Snackbar snackMessage = Snackbar.make(requireView(), "An account with this username already exists", BaseTransientBottomBar.LENGTH_LONG);
+                        snackMessage.show();
+                    }
+
                 }
             }
         });
@@ -97,6 +119,13 @@ public class RegisterFragment extends Fragment {
         });
 
         // -- Get buttons and add listeners - END --
+    }
+
+    public static boolean passwordChecker(String password,String regex)
+    {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(password);
+        return !matcher.matches();
     }
 
     // Goes to the login fragment

@@ -3,6 +3,8 @@ package com.example.vko11v3;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+
+import androidx.biometric.BiometricPrompt;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +16,16 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+
+import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
+import java.util.concurrent.Executor;
 
 public class LogInFragment extends Fragment {
 
@@ -52,7 +62,11 @@ public class LogInFragment extends Fragment {
             String user = username.getText().toString();
             String pass = password.getText().toString();
 
-            this.checkUser(user, pass, rememberMe.isChecked());
+            try {
+                this.checkUser(user, pass, rememberMe.isChecked());
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
 
         });
 
@@ -65,6 +79,61 @@ public class LogInFragment extends Fragment {
             transaction.commit();
         });
 
+
+        // Finger print login START
+        Executor executor;
+        BiometricPrompt biometricPrompt;
+        BiometricPrompt.PromptInfo promptInfo;
+
+        executor = ContextCompat.getMainExecutor(getContext());
+        biometricPrompt = new BiometricPrompt(LogInFragment.this, executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                Snackbar snackMessage = Snackbar.make(requireView(), "Authentication error", BaseTransientBottomBar.LENGTH_LONG);
+                snackMessage.show();
+            }
+
+            @SuppressLint("CommitPrefEdits")
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+
+                SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+
+                if (sharedPref.getString("biometric_user", null) == null) {
+                    ((MainInterface) requireActivity()).showAddUsernamePopup(view);
+                }
+                sharedPref.edit().putString("current_user", sharedPref.getString("biometric_user", null)).apply();
+                sharedPref.edit().putString("logged_in_as", sharedPref.getString("biometric_user", null)).apply();
+                ((MainInterface) requireActivity()).setNavHeaderText();
+                goToHomeFragment();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Snackbar snackMessage = Snackbar.make(requireView(), "Authentication failed", BaseTransientBottomBar.LENGTH_LONG);
+                snackMessage.show();
+            }
+        }) {
+        };
+
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometric login")
+                .setSubtitle("Log in using your biometric credential")
+                .setNegativeButtonText("Use account password")
+                .build();
+
+        Button fingerprint = view.findViewById(R.id.fingerPrintLogin);
+        fingerprint.setOnClickListener(view1 -> {
+
+            biometricPrompt.authenticate(promptInfo);
+
+        });
+        // Finger print login - END
+
+
         // -- Get buttons and add listeners - END --
 
     }
@@ -72,14 +141,19 @@ public class LogInFragment extends Fragment {
     // Checks if the username and password combination exists
     // and if that is the case, redirects user to the apps home page
     @SuppressLint("SetTextI18n")
-    public void checkUser (String username, String password, boolean stayLoggedIn) {
+    public void checkUser (String username, String password, boolean stayLoggedIn) throws NoSuchAlgorithmException {
 
         String savedPassword;
 
         SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
         savedPassword = sharedPref.getString(username, null);
 
-        if (password.equals(savedPassword)) {
+        // Hash-512 + salt password
+        byte[] salt = PasswordHashSalt.getSalt();
+        String hashSaltPassword = PasswordHashSalt.getSecurePassword(password, salt);
+
+        if (hashSaltPassword.equals(savedPassword)) {
+
             message.setText("Successfully logged in");
 
             // Checks if logged in is enabled.
@@ -92,14 +166,20 @@ public class LogInFragment extends Fragment {
             }
             sharedPref.edit().putString("current_user", username).apply();
             ((MainInterface) requireActivity()).setNavHeaderText();
+
             // Redirects user to the home page since login was successful
-            Fragment main = new MainFragment();
-            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_fragment, main );
-            transaction.commit();
+            goToHomeFragment();
 
         } else {
             message.setText(R.string.wrong_credentials);
         }
+    }
+
+    // Redirects user to home fragment
+    private void goToHomeFragment() {
+        Fragment main = new MainFragment();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.container_fragment, main );
+        transaction.commit();
     }
 }
