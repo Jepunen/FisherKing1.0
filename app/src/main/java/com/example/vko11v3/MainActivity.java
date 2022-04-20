@@ -173,11 +173,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 }
 
-/* katsottu apuja:
+/* Help from sources:
  * https://www.youtube.com/watch?v=USenYOBJw9Y
  * https://www.studytonight.com/android/get-edittext-set-textview
  *
  * Location:
  * https://www.youtube.com/watch?v=Ak1O9Gip-pg
+ *
+ * Weather:
+ * https://www.youtube.com/watch?v=VHgM_MQBQPg&list=PL1tIj6UC0gctBrAVI9GD4G_pgw7tOUQEc&index=2
+ * https://openweathermap.org/current
  *
  */

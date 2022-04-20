@@ -6,6 +6,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
@@ -28,16 +29,36 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 
 public class MainFragment extends Fragment {
 
-    //get location muuttujat (en tiedä onko parempi olla täällä vai esim. onViewCreated:n sisällä
+    //get weather variables
+    final String APP_ID = "8083d74fdf91756ac7b6cba38cd2b8e9";
+    final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
+    TextView temperature;
+    Button btTemperature;
+    String URLWeather;
+
+    //get location variables
     Button btLocation;
     TextView latitude, longitude, countryName, locality, address;
     FusedLocationProviderClient fusedLocationProviderClient;
+
 
     @Nullable
     @Override
@@ -64,6 +85,9 @@ public class MainFragment extends Fragment {
         TextView displayText = view.findViewById(R.id.displayText);
         TextView kielivalinta = view.findViewById(R.id.kielivalinta);
 
+        //get weather
+        temperature = view.findViewById(R.id.temperature);
+
         editText.addTextChangedListener(new TextWatcher() {
 
             public void afterTextChanged(Editable s) {
@@ -87,7 +111,7 @@ public class MainFragment extends Fragment {
         displayText.setText(Settings.getInstance().T4DisplayText);
         kielivalinta.setText("Kieli:" + Settings.getInstance().T4Kieli);
 
-        //get location muuttujat:
+        //get location variables:
         btLocation = view.findViewById(R.id.btLocation);
         latitude = view.findViewById(R.id.latitude);
         longitude = view.findViewById(R.id.longitude);
@@ -96,7 +120,16 @@ public class MainFragment extends Fragment {
         address = view.findViewById(R.id.address);
 
 
-        // get location:
+        // get temperature:
+
+        //onko tämä vielä tarpeellinen?:
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
+        btTemperature = view.findViewById(R.id.btTemperature);
+
+
         // Initialize fusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity()); //ei pelkkä this, koska ollaan fragmentissa
 
@@ -123,6 +156,14 @@ public class MainFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 ((MainInterface) requireActivity()).showAddCatchPopup(view);
+            }
+        });
+
+        btTemperature.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //readJSON(URLWeather);
+                System.out.println("*** test - get temperature button pressed ***");
             }
         });
 
@@ -169,6 +210,11 @@ public class MainFragment extends Fragment {
                         //Set address
                         address.setText(addresses.get(0).getAddressLine(0));
 
+                        //get weather:
+                        URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
+                        System.out.println("*** URLWeather *** :"+URLWeather);
+                        readJSON(URLWeather);
+
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -176,6 +222,71 @@ public class MainFragment extends Fragment {
                 }
             }
         });
+    }
+
+    public void readJSON (String URLWeather) {
+        System.out.println("*** readJSON metodi ***");
+        String json = getJSON(URLWeather);
+        System.out.println("JSON: "+json);
+
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            //JSONArray weatherMain = jsonObject.getJSONArray("main");
+            double tempKelvin = jsonObject.getJSONObject("main").getDouble("temp");
+            System.out.println("*** temperature in Kelvin: *** "+tempKelvin);
+            double tempCelcius = tempKelvin - 273.15;
+            System.out.println("*** temperature in Celsius: *** "+tempCelcius);
+            temperature.setText(Double.toString(tempCelcius));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        //vrt. Moodle video:
+        /*if (json != null) {
+            try {
+                JSONArray jsonArray = new JSONArray(json);
+                for(int i=0; i<jsonArray.length(); i++)  {
+                    JSONObject jobject = jsonArray.getJSONObject(i);
+                    System.out.println("*** temp ****"+jobject.getString("temp"));
+                    System.out.println("*** temp ****"+jobject.getString("description"));
+                    System.out.println("*** temp ****"+jobject.getString("main"));
+                    System.out.println("*** temp ****"+jobject.get("temp"));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }*/
+    }
+
+    public String getJSON (String URLWeather) {
+        System.out.println("*** getJSON metodi ***");
+        String response = null;
+
+        try {
+            //URL url = new URL("https://api.openweathermap.org/data/2.5/weather?lat=60.982927&lon=25.660680&appid=8083d74fdf91756ac7b6cba38cd2b8e9");
+            URL url = new URL(URLWeather);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            InputStream in = new BufferedInputStream(conn.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while((line = br.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            response = sb.toString();
+            in.close();
+
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return response;
     }
 
 }
