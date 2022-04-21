@@ -16,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import java.util.Objects;
+
 public class AddUsernamePopup extends AppCompatDialogFragment {
 
     private EditText username;
@@ -23,9 +25,9 @@ public class AddUsernamePopup extends AppCompatDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
 
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.fragment_add_username_popup, null);
 
         username = (EditText) view.findViewById(R.id.usernamePopupEditText);
@@ -45,11 +47,7 @@ public class AddUsernamePopup extends AppCompatDialogFragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if ( !TextUtils.isEmpty(username.getText().toString()) ) {
-                    buttonCanBePressed(true);
-                } else {
-                    buttonCanBePressed(false);
-                }
+                buttonCanBePressed(!TextUtils.isEmpty(username.getText().toString()));
             }
         });
 
@@ -72,6 +70,7 @@ public class AddUsernamePopup extends AppCompatDialogFragment {
         super.onResume();
         // disable positive button by default
         AlertDialog dialog = (AlertDialog) getDialog();
+        assert dialog != null;
         dialog.setCanceledOnTouchOutside(false);
 
         buttonCanBePressed(false);
@@ -79,6 +78,7 @@ public class AddUsernamePopup extends AppCompatDialogFragment {
 
     public void buttonCanBePressed(boolean active) {
         AlertDialog dialog = (AlertDialog) getDialog();
+        assert dialog != null;
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(active);
     }
 }

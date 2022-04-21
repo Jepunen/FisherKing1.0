@@ -1,26 +1,53 @@
 package com.example.vko11v3;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.Preview;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.LifecycleOwner;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.common.util.concurrent.ListenableFuture;
+
+import java.io.File;
+import java.util.Date;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainInterface {
     DrawerLayout drawerLayout;
@@ -34,11 +61,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Switch nightMode;
     TextView headerText;
 
+    ImageView imageView;
+    ActivityResultLauncher<Intent> activityResultLauncher;
 
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Camera
 
         setContentView(R.layout.activity_main);
 
@@ -70,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Check if user has Remember me option checked, and who is logged in
         // depending on that set the default fragment as login fragment or main fragment
-        if ( sharedPref.getString("logged_in_as", null) != null ) {
+        if (sharedPref.getString("logged_in_as", null) != null) {
             fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
             setNavHeaderText();
         } else {
@@ -85,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         nightMode = (Switch) nightModeSwitch.getActionView().findViewById(R.id.drawerSwitch);
         nightMode.setChecked(true);
         nightMode.setOnCheckedChangeListener((compoundButton, b) -> {
-            if ( b ) {
+            if (b) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -97,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         drawerLayout.closeDrawer(GravityCompat.START);
         // Home page
-        if(menuItem.getItemId() == R.id.navigationHome) {
+        if (menuItem.getItemId() == R.id.navigationHome) {
             fragmentManager = getSupportFragmentManager();
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.container_fragment, new MainFragment());
@@ -105,14 +136,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         // 2nd page
-        if(menuItem.getItemId() == R.id.navigationSettings) {
+        if (menuItem.getItemId() == R.id.navigationSettings) {
             fragmentManager = getSupportFragmentManager();
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.container_fragment, new SettingsFragment());
             fragmentTransaction.commit();
         }
 
-        if(menuItem.getItemId() == R.id.navigationCatches) {
+        if (menuItem.getItemId() == R.id.navigationCatches) {
             fragmentManager = getSupportFragmentManager();
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.container_fragment, new Catches());
@@ -120,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         // Logout
-        if(menuItem.getItemId() == R.id.navigationLogout) {
+        if (menuItem.getItemId() == R.id.navigationLogout) {
 
             SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
             sharedPref.edit().putString("logged_in_as", null).apply();
@@ -136,9 +167,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void hideNavToolbar(boolean shouldLock) {
-        if(shouldLock){
+        if (shouldLock) {
             toolbar.setVisibility(View.GONE);
-        }else{
+        } else {
             toolbar.setVisibility(View.VISIBLE);
         }
     }
@@ -148,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void setNavHeaderText() {
         SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
         String user = sharedPref.getString("current_user", null);
-        if ( user != null ) {
+        if (user != null) {
             headerText.setText("Welcome back " + user);
         } else {
             headerText.setText("Who dis? Anonymous?");
@@ -157,9 +188,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void showAddCatchPopup(View view) {
-        Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.fragment_add_catch);
-        dialog.show();
+        AddNewFishPopup dialog = new AddNewFishPopup();
+        dialog.show(getSupportFragmentManager(), "Add new fish");
     }
 
     @SuppressLint({"CommitPrefEdits", "SetTextI18n"})

@@ -1,0 +1,80 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="20dp"
+    tools:ignore="RtlSymmetry">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/newFishName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:ems="10"
+            android:hint="@string/fish_name"
+            android:inputType="textPersonName"
+            android:textColorHint="#FFE4E4E4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/newFishWeight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:ems="10"
+            android:hint="@string/fish_weight"
+            android:inputType="numberDecimal"
+            android:minHeight="48dp"
+            android:textColorHint="#FFE4E4E4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/newFishName" />
+
+        <ToggleButton
+            android:id="@+id/toggleButton"
+            android:layout_width="84dp"
+            android:layout_height="49dp"
+            android:layout_marginTop="44dp"
+            android:text="@string/grams_kg"
+            android:textColor="#E4E4E4"
+            android:textOff="@string/kg"
+            android:textOn="@string/grams"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/newFishWeight"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="TextContrastCheck" />
+
+        <EditText
+            android:id="@+id/newFishLength"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:ems="10"
+            android:hint="@string/fish_length"
+            android:inputType="numberDecimal"
+            android:minHeight="48dp"
+            android:textColorHint="#FFE4E4E4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/newFishWeight" />
+
+        <ImageView
+            android:id="@+id/newFishImageView"
+            android:layout_width="177dp"
+            android:layout_height="185dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:contentDescription="@string/image_of_fish"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/newFishLength"
+            tools:srcCompat="@tools:sample/avatars" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>

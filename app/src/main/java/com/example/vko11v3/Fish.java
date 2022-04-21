@@ -1,8 +1,11 @@
 package com.example.vko11v3;
 
-public class Fish {
+import java.io.Serializable;
+import java.util.Date;
 
-    String species;
+public class Fish implements Serializable {
+
+    String title;
     Double weight;
     Double length;
     String picture;
@@ -11,8 +14,8 @@ public class Fish {
     Long date;
 
 
-    public Fish(String species, Double weight, Double length, String picture, String latitude, String longitude, Long date) {
-        this.species = species;
+    public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude, Long date) {
+        this.title = title;
         this.weight = weight;
         this.length = length;
         this.picture = picture;
@@ -22,8 +25,8 @@ public class Fish {
     }
 
 
-    public String getSpecies() {
-        return species;
+    public String getTitle() {
+        return title;
     }
 
     public Double getWeight() {
@@ -46,8 +49,8 @@ public class Fish {
         return longitude;
     }
 
-    public void setSpecies(String species) {
-        this.species = species;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public void setWeight(Double weight) {
