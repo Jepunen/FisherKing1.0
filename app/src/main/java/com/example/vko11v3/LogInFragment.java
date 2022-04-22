@@ -2,6 +2,7 @@ package com.example.vko11v3;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 
 import androidx.biometric.BiometricPrompt;
@@ -23,17 +24,20 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.w3c.dom.Text;
+
 import java.security.NoSuchAlgorithmException;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 
 public class LogInFragment extends Fragment {
 
     TextView message;
+    TextView passwd;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         return inflater.inflate(R.layout.fragment_login, container, false);
     }
 
@@ -48,7 +52,7 @@ public class LogInFragment extends Fragment {
         // -- Get screen elements by ID --
         message  = view. findViewById(R.id.loginMessage);
         EditText username = view.findViewById(R.id.loginUsername);
-        EditText password = view.findViewById(R.id.loginPassword);
+        EditText password = view.findViewById(R.id.resetEmail);
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch rememberMe = view.findViewById(R.id.loginRememberMe);
 
@@ -56,7 +60,7 @@ public class LogInFragment extends Fragment {
 
 
         // -- Get buttons and add listeners --
-        Button loginButton = view.findViewById(R.id.loginButton);
+        Button loginButton = view.findViewById(R.id.sendEmail);
         loginButton.setOnClickListener(view1 -> {
 
             String user = username.getText().toString();
@@ -76,6 +80,15 @@ public class LogInFragment extends Fragment {
             Fragment register = new RegisterFragment();
             FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
             transaction.replace(R.id.container_fragment, register ); // give your fragment container id in first parameter
+            transaction.commit();
+        });
+
+        // Textview "forgot password" click, open reset password fragment
+        TextView resetPassword = view.findViewById(R.id.forgotPassword);
+        resetPassword.setOnClickListener(view1 -> {
+            Fragment reset = new ResetPassword();
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.container_fragment, reset);
             transaction.commit();
         });
 
@@ -182,4 +195,5 @@ public class LogInFragment extends Fragment {
         transaction.replace(R.id.container_fragment, main );
         transaction.commit();
     }
+
 }
