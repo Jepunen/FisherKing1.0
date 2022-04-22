@@ -61,6 +61,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
     String photoFileName = String.format("%d.jpg", System.currentTimeMillis());
     // Camera END
 
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {

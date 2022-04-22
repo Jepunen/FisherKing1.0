@@ -2,6 +2,7 @@ package com.example.vko11v3;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 
 import androidx.biometric.BiometricPrompt;
@@ -24,16 +25,28 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 
 public class LogInFragment extends Fragment {
 
     TextView message;
+    TextView passwd;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        View v = inflater.inflate(R.layout.fragment_login, container, false);
+        passwd=v.findViewById(R.id.forgotPassword);
+
+        passwd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), ResetPassword.class);
+                startActivity(intent);
+            }
+        });
+
         return inflater.inflate(R.layout.fragment_login, container, false);
     }
 
@@ -48,7 +61,7 @@ public class LogInFragment extends Fragment {
         // -- Get screen elements by ID --
         message  = view. findViewById(R.id.loginMessage);
         EditText username = view.findViewById(R.id.loginUsername);
-        EditText password = view.findViewById(R.id.loginPassword);
+        EditText password = view.findViewById(R.id.resetEmail);
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch rememberMe = view.findViewById(R.id.loginRememberMe);
 
@@ -56,7 +69,7 @@ public class LogInFragment extends Fragment {
 
 
         // -- Get buttons and add listeners --
-        Button loginButton = view.findViewById(R.id.loginButton);
+        Button loginButton = view.findViewById(R.id.sendEmail);
         loginButton.setOnClickListener(view1 -> {
 
             String user = username.getText().toString();
@@ -182,4 +195,5 @@ public class LogInFragment extends Fragment {
         transaction.replace(R.id.container_fragment, main );
         transaction.commit();
     }
+
 }
