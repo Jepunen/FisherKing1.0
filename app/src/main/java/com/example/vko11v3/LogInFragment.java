@@ -24,6 +24,8 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.w3c.dom.Text;
+
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.Executor;
 
@@ -35,17 +37,6 @@ public class LogInFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        View v = inflater.inflate(R.layout.fragment_login, container, false);
-        passwd=v.findViewById(R.id.forgotPassword);
-
-        passwd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), ResetPassword.class);
-                startActivity(intent);
-            }
-        });
 
         return inflater.inflate(R.layout.fragment_login, container, false);
     }
@@ -89,6 +80,15 @@ public class LogInFragment extends Fragment {
             Fragment register = new RegisterFragment();
             FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
             transaction.replace(R.id.container_fragment, register ); // give your fragment container id in first parameter
+            transaction.commit();
+        });
+
+        // Textview "forgot password" click, open reset password fragment
+        TextView resetPassword = view.findViewById(R.id.forgotPassword);
+        resetPassword.setOnClickListener(view1 -> {
+            Fragment reset = new ResetPassword();
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.container_fragment, reset);
             transaction.commit();
         });
 
