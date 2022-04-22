@@ -42,6 +42,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.sql.SQLOutput;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -58,6 +60,12 @@ public class MainFragment extends Fragment {
     Button btLocation;
     TextView latitude, longitude, countryName, locality, address;
     FusedLocationProviderClient fusedLocationProviderClient;
+
+    //getFish variables (temp)
+    Button btFish;
+
+    //listFish variables (temp)
+    Button btListFish;
 
 
     @Nullable
@@ -167,7 +175,56 @@ public class MainFragment extends Fragment {
             }
         });
 
+        //get Fish
+        btFish = view.findViewById(R.id.btFish);
+        btFish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getFish();
+            }
+        });
+
+        //list Fish
+        btListFish = view.findViewById(R.id.btListFish);
+        btListFish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listFish();
+            }
+        });
+
     }
+
+    private void getFish() {
+        System.out.println("*** New fish (kiinteä testikala) ***");
+        Fish fish = new Fish();
+        System.out.println(fish.getFish());
+        System.out.println("******");
+
+        ArrayList<Fish> fList = new ArrayList<Fish>();
+        Fish f1 = new Fish("Särki", 2.2, 3.3, String.valueOf(61.011333), String.valueOf(25.614806));
+        Fish f2 = new Fish("Hauki", 5.5, 3.3, String.valueOf(61.011333), String.valueOf(25.614806));
+        Fish f3 = new Fish("Ahven", 4.4, 3.3, String.valueOf(61.011333), String.valueOf(25.614806));
+
+        fList.add(f1);
+        fList.add(f2);
+        fList.add(f3);
+
+        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
+    }
+
+    private void listFish() {
+        System.out.println("*** List Fish method ***");
+
+        ArrayList<Fish> fisut = new ArrayList<>();
+        fisut = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
+
+        for (Fish f : fisut) {
+            System.out.println(f.title + ": " + f.weight);
+        }
+    }
+
+
 
     //get location:
     private void getLocation() {

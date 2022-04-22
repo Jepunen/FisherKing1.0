@@ -10,7 +10,7 @@
     <Button
         android:id="@+id/btLocation"
         android:layout_width="145dp"
-        android:layout_height="31dp"
+        android:layout_height="48dp"
         android:layout_marginBottom="30dp"
         android:text="Get location"
         android:textSize="10sp"
@@ -157,8 +157,8 @@
     <Button
         android:id="@+id/btTemperature"
         android:layout_width="145dp"
-        android:layout_height="31dp"
-        android:text="Get temperature"
+        android:layout_height="48dp"
+        android:text="temperature"
         android:textSize="10sp"
         app:layout_constraintBottom_toTopOf="@+id/temperature"
         app:layout_constraintEnd_toEndOf="parent"
@@ -178,6 +178,26 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.976"
         app:srcCompat="@android:drawable/ic_menu_add" />
+
+    <Button
+        android:id="@+id/btFish"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Fish"
+        app:layout_constraintBottom_toTopOf="@+id/luettavaTeksti"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editText" />
+
+    <Button
+        android:id="@+id/btListFish"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LIST FISH"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/luettavaTeksti" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
