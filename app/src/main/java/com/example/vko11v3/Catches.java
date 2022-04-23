@@ -38,10 +38,13 @@ public class Catches extends Fragment {
         return inflater.inflate(R.layout.fragment_catches, container, false);
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "CommitPrefEdits"})
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+        sharedPref.edit().putString("last_page", "Catches").apply();
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
 

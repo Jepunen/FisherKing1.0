@@ -32,7 +32,6 @@ import java.util.concurrent.Executor;
 public class LogInFragment extends Fragment {
 
     TextView message;
-    TextView passwd;
 
     @Nullable
     @Override
@@ -48,6 +47,7 @@ public class LogInFragment extends Fragment {
 
         // Hides the navigation toolbar from the user
         ((MainInterface) requireActivity()).hideNavToolbar(true);
+
 
         // -- Get screen elements by ID --
         message  = view. findViewById(R.id.loginMessage);

@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -56,34 +57,33 @@ public class RegisterFragment extends Fragment {
             String pass = password.getText().toString();
             String emal = email.getText().toString();
 
-            // Check that none of the input fields are empty
-            if ( TextUtils.isEmpty(user) || TextUtils.isEmpty(pass) || TextUtils.isEmpty(emal) ) {
-                message.setText(R.string.empty_field);
+            // Create a file for the user data
+            SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
 
+            if ( sharedPref.contains(user) ) {
+                Toast.makeText(requireActivity(), "This username is taken", Toast.LENGTH_LONG).show();
             } else {
+                // Check that none of the input fields are empty
+                if ( TextUtils.isEmpty(user) || TextUtils.isEmpty(pass) || TextUtils.isEmpty(emal) ) {
+                    message.setText(R.string.empty_field);
 
-                // Checks and tells user if their password is a strong password
-                if (passwordChecker(pass, "^.{12,20}$")) {
-                    message.setText("Password must be between 12-20 characters");
-                } else if (passwordChecker(pass, ".*[a-z].*")) {
-                    message.setText("Password must include at least one lower case letter");
-                } else if (passwordChecker(pass, ".*[A-Z].*")) {
-                    message.setText("Password must include at least one upper case letter");
-                } else if (passwordChecker(pass, ".*[0-9].*")) {
-                    message.setText("Password must include at least one number");
-                } else if (passwordChecker(pass, ".*[!\"`'#%&,:;<>=@{}~\\$\\(\\)\\*\\+\\/\\\\\\?\\[\\]\\^\\|].*")) {
-                    message.setText("Password must include a special character");
                 } else {
 
-                    // Create a user with it's username as key and password as the value.
-                    // Create another key as username:email with email as its value
-                    SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPref.edit();
-
-                    // Checks if user with the name already exists
-                    // if   = user doesn't exist -> create user
-                    // else = user exists -> prompt user of existing account
-                    if ( !sharedPref.contains(user) ) {
+                    // Checks and tells user if their password is a strong password
+                    if (passwordChecker(pass, "^.{12,20}$")) {
+                        message.setText("Password must be between 12-20 characters");
+                    } else if (passwordChecker(pass, ".*[a-z].*")) {
+                        message.setText("Password must include at least one lower case letter");
+                    } else if (passwordChecker(pass, ".*[A-Z].*")) {
+                        message.setText("Password must include at least one upper case letter");
+                    } else if (passwordChecker(pass, ".*[0-9].*")) {
+                        message.setText("Password must include at least one number");
+                    } else if (passwordChecker(pass, ".*[!\"`'#%&,:;<>=@{}~\\$\\(\\)\\*\\+\\/\\\\\\?\\[\\]\\^\\|].*")) {
+                        message.setText("Password must include a special character");
+                    } else {
+                        // Create a user with it's username as key and password as the value.
+                        // Create another key as username:email with email as its value
 
                         // Hash-512 + salt password
                         byte[] salt = PasswordHashSalt.getSalt();
@@ -92,15 +92,10 @@ public class RegisterFragment extends Fragment {
                         editor.putString(user, hashSaltPassword);
                         editor.putString(user + ":email", emal);
                         editor.apply();
-                        Snackbar snackMessage = Snackbar.make(requireView(), "Account created, try logging in", BaseTransientBottomBar.LENGTH_LONG);
-                        snackMessage.show();
+                        Toast.makeText(requireActivity(), "Account created, try logging in", Toast.LENGTH_SHORT).show();
 
                         goToLoginPage();
-                    } else {
-                        Snackbar snackMessage = Snackbar.make(requireView(), "An account with this username already exists", BaseTransientBottomBar.LENGTH_LONG);
-                        snackMessage.show();
                     }
-
                 }
             }
         });
