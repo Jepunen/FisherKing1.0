@@ -46,6 +46,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
@@ -61,15 +62,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Switch nightMode;
     TextView headerText;
 
-    ImageView imageView;
-    ActivityResultLauncher<Intent> activityResultLauncher;
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "CommitPrefEdits"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Camera
 
         setContentView(R.layout.activity_main);
 
@@ -92,17 +89,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
-        // sharedPref.edit().clear().apply(); // Uncomment to clear USER_DATA file
-
 
         // -- Load first fragment --
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
 
+
         // Check if user has Remember me option checked, and who is logged in
         // depending on that set the default fragment as login fragment or main fragment
         if (sharedPref.getString("logged_in_as", null) != null) {
-            fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
+
+            String last_page = sharedPref.getString("last_page", null);
+            if ( last_page == null ) {
+                sharedPref.edit().putString("last_page", "null").apply();
+            }
+            switch (Objects.requireNonNull(last_page)) {
+                case ("Main"):
+                    fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
+                    break;
+                case ("Catches"):
+                    fragmentTransaction.replace(R.id.container_fragment, new Catches(), "MY_FRAGMENT");
+                    break;
+                default:
+                    fragmentTransaction.replace(R.id.container_fragment, new LogInFragment(), "MY_FRAGMENT");
+                    break;
+            }
             setNavHeaderText();
         } else {
             fragmentTransaction.replace(R.id.container_fragment, new LogInFragment());

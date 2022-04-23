@@ -1,6 +1,9 @@
 package com.example.vko11v3;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -75,10 +78,15 @@ public class MainFragment extends Fragment {
         return view;
     }
 
+    @SuppressLint("CommitPrefEdits")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ((MainInterface) requireActivity()).hideNavToolbar(false);
+
+        // Set as last been on fragment
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+        sharedPref.edit().putString("last_page", "Main").apply();
 
         TextView textView = view.findViewById(R.id.textView);
         textView.setTextSize(Settings.getInstance().fonttikoko);
