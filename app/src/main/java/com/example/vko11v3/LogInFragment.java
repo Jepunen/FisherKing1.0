@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +28,7 @@ import com.google.android.material.snackbar.Snackbar;
 import org.w3c.dom.Text;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 public class LogInFragment extends Fragment {
@@ -98,13 +100,12 @@ public class LogInFragment extends Fragment {
         BiometricPrompt biometricPrompt;
         BiometricPrompt.PromptInfo promptInfo;
 
-        executor = ContextCompat.getMainExecutor(getContext());
+        executor = ContextCompat.getMainExecutor(requireContext());
         biometricPrompt = new BiometricPrompt(LogInFragment.this, executor, new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
-                Snackbar snackMessage = Snackbar.make(requireView(), "Authentication error", BaseTransientBottomBar.LENGTH_LONG);
-                snackMessage.show();
+                Toast.makeText(requireActivity(), "Authentication error", Toast.LENGTH_SHORT).show();
             }
 
             @SuppressLint("CommitPrefEdits")
@@ -126,8 +127,7 @@ public class LogInFragment extends Fragment {
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                Snackbar snackMessage = Snackbar.make(requireView(), "Authentication failed", BaseTransientBottomBar.LENGTH_LONG);
-                snackMessage.show();
+                Toast.makeText(requireActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
             }
         }) {
         };

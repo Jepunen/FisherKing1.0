@@ -58,8 +58,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
     MenuItem nightModeSwitch;
+    MenuItem homeStartPage;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch nightMode;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    Switch homeStart;
     TextView headerText;
 
 
@@ -95,24 +98,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentTransaction = fragmentManager.beginTransaction();
 
 
+        // Start from home page listener
+        homeStartPage = navigationView.getMenu().findItem(R.id.navigationHomeStart);
+        homeStart = (Switch) homeStartPage.getActionView().findViewById(R.id.drawerSwitch);
+        homeStart.setChecked(sharedPref.getBoolean("always_start_from_home", true));
+        homeStart.setOnCheckedChangeListener((compoundButton, b) -> {
+            sharedPref.edit().putBoolean("always_start_from_home", b).apply();
+        });
+
         // Check if user has Remember me option checked, and who is logged in
         // depending on that set the default fragment as login fragment or main fragment
         if (sharedPref.getString("logged_in_as", null) != null) {
 
-            String last_page = sharedPref.getString("last_page", null);
-            if ( last_page == null ) {
-                sharedPref.edit().putString("last_page", "null").apply();
-            }
-            switch (Objects.requireNonNull(last_page)) {
-                case ("Main"):
-                    fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
-                    break;
-                case ("Catches"):
-                    fragmentTransaction.replace(R.id.container_fragment, new Catches(), "MY_FRAGMENT");
-                    break;
-                default:
+            if ( !sharedPref.getBoolean("always_start_from_home", false) ) {
+                String last_page = sharedPref.getString("last_page", null);
+                if (last_page == "null") {
                     fragmentTransaction.replace(R.id.container_fragment, new LogInFragment(), "MY_FRAGMENT");
-                    break;
+                } else {
+                    switch (Objects.requireNonNull(last_page)) {
+                        case ("Main"):
+                            fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
+                            break;
+                        case ("Catches"):
+                            fragmentTransaction.replace(R.id.container_fragment, new Catches(), "MY_FRAGMENT");
+                            break;
+                        default:
+                            fragmentTransaction.replace(R.id.container_fragment, new LogInFragment(), "MY_FRAGMENT");
+                            break;
+                    }
+                }
+            } else {
+                fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
             }
             setNavHeaderText();
         } else {
@@ -125,8 +141,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Nav drawer night mode switch listener
         nightModeSwitch = navigationView.getMenu().findItem(R.id.navigationNightModeSwitch);
         nightMode = (Switch) nightModeSwitch.getActionView().findViewById(R.id.drawerSwitch);
-        nightMode.setChecked(true);
+        nightMode.setChecked(sharedPref.getBoolean("night_mode", true));
         nightMode.setOnCheckedChangeListener((compoundButton, b) -> {
+            sharedPref.edit().putBoolean("night_mode", b).apply();
             if (b) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             } else {

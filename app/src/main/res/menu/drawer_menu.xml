@@ -25,7 +25,12 @@
                 android:icon="@android:drawable/ic_menu_view"
                 android:title="@string/night_mode"
                 app:actionLayout="@layout/switch_item"
-                app:showAsAction="always" />
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/navigationHomeStart"
+                android:title="@string/start_from_home_page"
+                app:actionLayout="@layout/switch_item"
+                app:showAsAction="ifRoom" />
             <item
                 android:id="@+id/navigationLogout"
                 android:icon="@android:drawable/ic_menu_close_clear_cancel"
