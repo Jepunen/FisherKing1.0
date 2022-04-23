@@ -15,9 +15,9 @@ import java.util.ArrayList;
 public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecyclerViewAdapter.MyViewHolder> {
 
     Context context;
-    ArrayList<CatchesData> catches;
+    ArrayList<Fish> catches;
 
-    public CatchesRecyclerViewAdapter (Context context, ArrayList<CatchesData> listOfCatches) {
+    public CatchesRecyclerViewAdapter (Context context, ArrayList<Fish> listOfCatches) {
         this.context = context;
         this.catches = listOfCatches;
     }
@@ -39,8 +39,8 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
     public void onBindViewHolder(@NonNull CatchesRecyclerViewAdapter.MyViewHolder holder, int position) {
 
         holder.title.setText(catches.get(position).getTitle());
-        holder.details.setText(catches.get(position).getDetails());
-        holder.timePlace.setText(catches.get(position).getTimePlace());
+        holder.details.setText(catches.get(position).getLatitude());
+        holder.timePlace.setText(catches.get(position).getPicture());
 
     }
 

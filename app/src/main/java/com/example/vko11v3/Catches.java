@@ -25,11 +25,13 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Objects;
 
 
 public class Catches extends Fragment {
 
-    ArrayList<CatchesData> catches = new ArrayList<>();
+    ArrayList<Fish> catches = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,16 +59,7 @@ public class Catches extends Fragment {
     }
 
     private void setUpRecyclerView (  ) {
-        String[] titles = {"title1", "title2", "title3", "title4", "title2", "title3", "title4"};
-        String[] details = {"details1", "details2", "details3", "details4", "details2", "details3", "details4"};
-        String[] timePlace = {"timePlace1", "timePlace2", "timePlace3", "timePlace4", "timePlace2", "timePlace3", "timePlace4"};
-
-        for ( int i=0; i< titles.length; i++ ) {
-            catches.add(new CatchesData(
-                    titles[i],
-                    details[i],
-                    timePlace[i]
-            ));
-        }
+        catches = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),"FishList");
+        Collections.reverse(catches);
     }
 }

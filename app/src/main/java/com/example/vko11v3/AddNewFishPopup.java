@@ -74,7 +74,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
     File photoFile = null;
     String storageDir;
     @SuppressLint("DefaultLocale")
-    String photoFileName = String.format("%d.jpg", System.currentTimeMillis());
+    String photoFileName = "null";
     // Camera END
 
 
@@ -241,7 +241,10 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
 
     // Create a Directory for the photo to be saved at
     // + save the photo there when taken
+    @SuppressLint("DefaultLocale")
     public File getPhotoFileUri(String fileName) {
+
+        photoFileName = String.format("%d.jpg", System.currentTimeMillis());
 
         // Get safe storage directory for photos
         File mediaStorageDir = new File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "FisherKing");
