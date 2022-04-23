@@ -127,7 +127,7 @@ public class MainFragment extends Fragment {
         displayText.setText(Settings.getInstance().T4DisplayText);
         kielivalinta.setText("Kieli:" + Settings.getInstance().T4Kieli);
 
-        //get location variables:
+        //get location elements:
         btLocation = view.findViewById(R.id.btLocation);
         latitude = view.findViewById(R.id.latitude);
         longitude = view.findViewById(R.id.longitude);
@@ -138,7 +138,7 @@ public class MainFragment extends Fragment {
 
         // get temperature:
 
-        //onko tämä vielä tarpeellinen?:
+        //Is this still necessary?:
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
@@ -154,8 +154,8 @@ public class MainFragment extends Fragment {
             public void onClick(View view) {
                 //check permission
                 if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                        //mainActivity vai MainFragment -> ei tunnu toimivan kummallakaan
-                        //eikä context: vs. activity -> kummallakaan
+                        //mainActivity vai MainFragment -> doesnt seem to work
+                        //not context: vs. activity -> with either
                         == PackageManager.PERMISSION_GRANTED) {
                     //When permission granted
                     getLocation();
@@ -204,7 +204,7 @@ public class MainFragment extends Fragment {
     }
 
     private void getFish() {
-        System.out.println("*** New fish (kiinteä testikala) ***");
+        System.out.println("*** New fish (fixed test fish) ***");
         Fish fish = new Fish();
         System.out.println(fish.getFish());
         System.out.println("******");
@@ -224,11 +224,11 @@ public class MainFragment extends Fragment {
     private void listFish() {
         System.out.println("*** List Fish method ***");
 
-        ArrayList<Fish> fisut = new ArrayList<>();
-        fisut = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
+        ArrayList<Fish> fishHistory = new ArrayList<>();
+        fishHistory = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
 
-        for (Fish f : fisut) {
-            System.out.println(f.title + ": " + f.weight);
+        for (Fish f : fishHistory) {
+            System.out.println(f.title + ": " + f.weight + "," + f.latitude + "," + f.longitude + "," + f.date2);
         }
     }
 
