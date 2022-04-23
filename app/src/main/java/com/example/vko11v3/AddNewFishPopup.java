@@ -1,20 +1,22 @@
 package com.example.vko11v3;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -23,7 +25,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -33,23 +34,38 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
-import androidx.fragment.app.DialogFragment;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Objects;
+import java.util.List;
+import java.util.Locale;
 
 public class AddNewFishPopup extends AppCompatDialogFragment {
 
     EditText newFishName;
     EditText newFishWeight;
     EditText newFishLength;
+
+    // Miten arraylist käyttäytyy, kun kirjautuu eri käyttäjällä?
+    // Lisääkö vanhaan listaan toisen käyttäjän saaliit?
+    // Muistaako edellisen kirjautumisen kalat vai ylikirjoittaako tiedoston -> historia katoaa?
+    // Jos katoaa, niin pitää ensin ladata historia arraylistiin (deserialize) ja sitten vasta append + serialize?
+
+    //Save fishes
+    ArrayList<Fish> fList = new ArrayList<Fish>();
+    FusedLocationProviderClient fusedLocationProviderClient;
+    String latitude;
+    String longitude;
 
     // Camera
     ImageView imageView;
@@ -96,20 +112,19 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
 
         newFishName.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
             public void afterTextChanged(Editable editable) {
                 buttonCanBePressed(!TextUtils.isEmpty(newFishName.getText().toString()));
             }
         });
+
+        // Location: Initialize fusedLocationProviderClient
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity()); //ei pelkkä this, koska ollaan fragmentissa
 
         builder.setView(view)
                 .setTitle("Add new fish")
@@ -125,14 +140,54 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         length = Double.parseDouble(newFishLength.getText().toString());
                     }
                     Date date = new Date();
-                    Fish fish = new Fish(title, weight, length, photoFileName, "latitude", "longitude", date.getTime());
+
+                    //Jeres version:
+                    //Fish fish = new Fish(title, weight, length, photoFileName, "latitude", "longitude", date.getTime());
+
+                    //Deserialize existing fish list to be able to append to it
+                    fList = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
+
+                    //Location: check permission
+                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+                        //When permission granted
+                        getLocation();
+
+                        //START GETLOCATION TEMP
+                        //....
+                        //END
+
+
+                        System.out.println("*** latitude inside setview ***: " + latitude);
+                        System.out.println("*** longitude inside setview ***: " + longitude);
+
+                        //Serialize fish (REMEMBER filename -> insert username)
+                        Fish fish = new Fish(title, weight, length, photoFileName, latitude, longitude); //gets date automatically from Fish - constructor
+                        fList.add(fish);
+                        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
+                    } else {
+                        //When permission denied
+                        ActivityCompat.requestPermissions(getActivity(),
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
+                    }
+
+
+                    //Serialize fish (REMEMBER filename -> insert username)
+                    //Fish fish = new Fish(title, weight, length, photoFileName, "latitude", "longitude"); //gets date automatically from Fish - constructor
+                    //Fish fish = new Fish(title, weight, length, photoFileName, latitude, longitude); //gets date automatically from Fish - constructor
+                    //fList.add(fish);
+                    //SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
+
+
 
                     // TODO Add to list and Serialized file
+                    //Jonas -> laita tänne latitude / longitude tiedot
+                    //Jonas -> tänne serialisointi -> fileen tallennus
+
+
 
                 })
                 .setNeutralButton("Add picture", null);
-
-
 
         return builder.create();
     }
@@ -199,5 +254,65 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
 
         // Return the file target for the photo based on filename
         return new File(mediaStorageDir.getPath() + File.separator + photoFileName);
+    }
+
+
+    //get location:
+    private void getLocation() {
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            Snackbar.make(getView(), "Give permissions **temp**", 3);
+
+            return;
+        }
+        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+            @Override
+            public void onComplete(@NonNull Task<Location> task) {
+                //Initialize location
+                Location location = task.getResult();
+                if (location != null) {
+                    try {
+                        System.out.println("*** getlocation method inside addnewfishpopup ***");
+
+                        //Initialize geoCoder
+                        Geocoder geocoder = new Geocoder(getActivity(),
+                                Locale.getDefault());
+                        //Initialize address list
+                        List<Address> addresses = geocoder.getFromLocation(
+                                location.getLatitude(), location.getLongitude(), 1);
+
+                        //Set latitude on TextView
+                        latitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
+                        System.out.println("*** latitude inside addnewfishpopup ***: " + latitude);
+                        //latitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
+
+                        //Set longitude on TextView
+                        longitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
+                        System.out.println("*** longitude inside addnewfishpopup ***: " + longitude);
+                        //longitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
+
+                        //Set country name
+                        //countryName.setText(addresses.get(0).getCountryName());
+
+                        //Set locality
+                        //locality.setText(addresses.get(0).getLocality());
+
+                        //Set address
+                        //address.setText(addresses.get(0).getAddressLine(0));
+
+                        //get weather:
+                        //URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
+                        //System.out.println("*** URLWeather *** :"+URLWeather);
+                        //readJSON(URLWeather);
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 }
