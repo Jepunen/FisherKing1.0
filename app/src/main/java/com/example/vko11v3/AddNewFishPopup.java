@@ -75,6 +75,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
     String title;
     double weight = 0.0;
     double length = 0.0;
+    String locality;
     // Save fish END
 
     // Weather
@@ -174,6 +175,9 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                     //Deserialize existing fish list to be able to append to it
                     fList = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
 
+                    //Jonas -> tee ao. kysely niin, että pystyy tallentamaan kalan vaikka paikannustietoa ei olisikaan annettu käyttäjän toimesta
+                    //Jonas -> lisää kaupunkitieto kalan ominaisuuksiin (koska järveä ei ilm. saa googlesta)
+
                     //Location: check permission
                     if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
@@ -184,6 +188,13 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         //When permission denied
                         ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
+                        System.out.println("*** no permission for location -> save wish without coordinates or weather data ***");
+
+                        //save fish to list (REMEMBER FILENAME CHANGE)
+                        Fish fish = new Fish(title, weight, length, photoFileName); //gets date automatically from Fish - constructor
+                        fList.add(fish);
+                        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
+
                     }
 
                 })
@@ -266,7 +277,9 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            Snackbar.make(getView(), "Give permissions **temp**", 3);
+            latitude = null;
+            longitude = null;
+            //Snackbar.make(getView(), "Give permissions **temp**", 3);
 
             return;
         }
@@ -300,6 +313,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
 
                         //Set locality
                         //locality.setText(addresses.get(0).getLocality());
+                        locality = addresses.get(0).getLocality();
 
                         //Set address
                         //address.setText(addresses.get(0).getAddressLine(0));
@@ -310,7 +324,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         tempCelcius = readJSON(URLWeather);
 
                         //save fish to list (REMEMBER FILENAME CHANGE)
-                        Fish fish = new Fish(title, weight, length, photoFileName, latitude, longitude, tempCelcius); //gets date automatically from Fish - constructor
+                        Fish fish = new Fish(title, weight, length, photoFileName, latitude, longitude, tempCelcius, locality); //gets date automatically from Fish - constructor
                         fList.add(fish);
                         SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
 

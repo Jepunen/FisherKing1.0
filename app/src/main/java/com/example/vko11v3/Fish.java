@@ -35,7 +35,9 @@ public class Fish implements Serializable {
     Long date;
     Date date2;
     Double tempCelcius;
+    String locality;
 
+    //TEMP -> dont think these are needed -> unless we cant fix empty file crash issue otherwise
     String titleWeight;
     String titleLength;
     String titleDate;
@@ -54,9 +56,7 @@ public class Fish implements Serializable {
 
 
     //Constructor with "Date date2" -> will be final when working with AddNewFishPopup
-    //Date given automatically -> not received as parameter
-
-    public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude, Double tempCelcius) {
+    public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude, Double tempCelcius, String locality) {
     //public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude) {
         this.title = title;
         this.weight = weight;
@@ -66,6 +66,17 @@ public class Fish implements Serializable {
         this.longitude = longitude;
         this.date2 = Calendar.getInstance().getTime();
         this.tempCelcius = tempCelcius;
+        this.locality = locality;
+    }
+
+    //Constructor for when user has not given permission for location
+    public Fish(String title, Double weight, Double length, String picture) {
+        //public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude) {
+        this.title = title;
+        this.weight = weight;
+        this.length = length;
+        this.picture = picture;
+        this.date2 = Calendar.getInstance().getTime();
     }
 
     //temp rakentaja2

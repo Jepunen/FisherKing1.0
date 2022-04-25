@@ -240,12 +240,10 @@ public class MainFragment extends Fragment {
         System.out.println();
         System.out.println("*** ALl YOUR CATCHES: ***");
         for (Fish f : fishHistory) {
-            System.out.println(f.title + ": " + f.weight + "," + f.latitude + "," + f.longitude + "," + f.tempCelcius + "," + f.date2);
+            System.out.println(f.title + ": " + f.weight + "," + f.latitude + "," + f.longitude + "," + f.tempCelcius + "," + f.locality +"," + f.date2);
             //System.out.println(f.title + ": " + f.weight + "," + f.latitude + "," + f.longitude + "," + f.date2);
         }
     }
-
-
 
     //get location:
     private void getLocation() {
@@ -275,23 +273,29 @@ public class MainFragment extends Fragment {
                         Geocoder geocoder = new Geocoder(getActivity(),
                                 Locale.getDefault());
                         //Initialize address list
-                        List<Address> addresses = geocoder.getFromLocation(
-                                location.getLatitude(), location.getLongitude(), 1);
+                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                        //List<Address> addresses = geocoder.getFromLocation(61.008106, 25.618022, 1);
+
                         //Set latitude on TextView
                         latitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
+                        //latitude.setText(Html.fromHtml(String.valueOf(61.008106)));
                         //Set longitude on TextView
                         longitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
+                        //longitude.setText(Html.fromHtml(String.valueOf(25.618022)));
                                 //Set country name
                                 countryName.setText(addresses.get(0).getCountryName());
                         //Set locality
                         locality.setText(addresses.get(0).getLocality());
                         //Set address
                         address.setText(addresses.get(0).getAddressLine(0));
+                        // -> Check "lake" if you have the time
 
                         //get weather:
                         URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
                         System.out.println("*** URLWeather *** :"+URLWeather);
                         readJSON(URLWeather);
+
+                        //61.008106, 25.618022 (vesijärvi)
 
 
                     } catch (IOException e) {
@@ -319,22 +323,6 @@ public class MainFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        //vrt. Moodle video:
-        /*if (json != null) {
-            try {
-                JSONArray jsonArray = new JSONArray(json);
-                for(int i=0; i<jsonArray.length(); i++)  {
-                    JSONObject jobject = jsonArray.getJSONObject(i);
-                    System.out.println("*** temp ****"+jobject.getString("temp"));
-                    System.out.println("*** temp ****"+jobject.getString("description"));
-                    System.out.println("*** temp ****"+jobject.getString("main"));
-                    System.out.println("*** temp ****"+jobject.get("temp"));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }*/
     }
 
     public String getJSON (String URLWeather) {

@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // depending on that set the default fragment as login fragment or main fragment
         if (sharedPref.getString("logged_in_as", null) != null) {
 
-            if ( !sharedPref.getBoolean("always_start_from_home", false) ) {
+            /*if ( !sharedPref.getBoolean("always_start_from_home", false) ) {
                 String last_page = sharedPref.getString("last_page", null);
                 if (last_page == "null") {
                     fragmentTransaction.replace(R.id.container_fragment, new LogInFragment(), "MY_FRAGMENT");
@@ -129,7 +129,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             } else {
                 fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
-            }
+            }*/
+            fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
+
             setNavHeaderText();
         } else {
             fragmentTransaction.replace(R.id.container_fragment, new LogInFragment());
