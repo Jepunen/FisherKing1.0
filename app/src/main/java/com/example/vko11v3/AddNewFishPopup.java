@@ -175,9 +175,6 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                     //Deserialize existing fish list to be able to append to it
                     fList = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
 
-                    //Jonas -> tee ao. kysely niin, että pystyy tallentamaan kalan vaikka paikannustietoa ei olisikaan annettu käyttäjän toimesta
-                    //Jonas -> lisää kaupunkitieto kalan ominaisuuksiin (koska järveä ei ilm. saa googlesta)
-
                     //Location: check permission
                     if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
@@ -191,7 +188,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         System.out.println("*** no permission for location -> save wish without coordinates or weather data ***");
 
                         //save fish to list (REMEMBER FILENAME CHANGE)
-                        Fish fish = new Fish(title, weight, length, photoFileName); //gets date automatically from Fish - constructor
+                        Fish fish = new Fish(title, weight, length, photoFileName);
                         fList.add(fish);
                         SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
 

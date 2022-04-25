@@ -76,6 +76,7 @@ public class Fish implements Serializable {
         this.weight = weight;
         this.length = length;
         this.picture = picture;
+        this.locality = null;
         this.date2 = Calendar.getInstance().getTime();
     }
 
