@@ -43,8 +43,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -56,16 +67,22 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
     EditText newFishWeight;
     EditText newFishLength;
 
-    // Miten arraylist käyttäytyy, kun kirjautuu eri käyttäjällä?
-    // Lisääkö vanhaan listaan toisen käyttäjän saaliit?
-    // Muistaako edellisen kirjautumisen kalat vai ylikirjoittaako tiedoston -> historia katoaa?
-    // Jos katoaa, niin pitää ensin ladata historia arraylistiin (deserialize) ja sitten vasta append + serialize?
-
-    //Save fishes
+    // Save fish
     ArrayList<Fish> fList = new ArrayList<Fish>();
     FusedLocationProviderClient fusedLocationProviderClient;
     String latitude;
     String longitude;
+    String title;
+    double weight = 0.0;
+    double length = 0.0;
+    // Save fish END
+
+    // Weather
+    final String APP_ID = "8083d74fdf91756ac7b6cba38cd2b8e9";
+    final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
+    String URLWeather;
+    double tempCelcius = 0.0;
+    // Weather END
 
     // Camera
     ImageView imageView;
@@ -123,16 +140,17 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
             }
         });
 
-        // Location: Initialize fusedLocationProviderClient
+        // Initialize fusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity()); //ei pelkkä this, koska ollaan fragmentissa
 
         builder.setView(view)
                 .setTitle("Add new fish")
                 .setPositiveButton("Add", (dialogInterface, i) -> {
 
-                    String title = newFishName.getText().toString();
-                    double weight = 0.0;
-                    double length = 0.0;
+                    title = newFishName.getText().toString();
+                    weight = 0.0;
+                    length = 0.0;
+
                     if ( !TextUtils.isEmpty(newFishWeight.getText().toString()) ) {
                         weight = Double.parseDouble(newFishWeight.getText().toString());
                     }
@@ -141,8 +159,17 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                     }
                     Date date = new Date();
 
-                    //Jeres version:
-                    //Fish fish = new Fish(title, weight, length, photoFileName, "latitude", "longitude", date.getTime());
+                    //Test: activate these rows to empty the arraylist in FishList file
+                    //fList = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
+                    //fList.clear();
+                    //SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
+
+                    //"Pre"Serialize arraylist if empty
+                    @SuppressLint("SdCardPath") File f = new File("/data/data/com.example.vko11v3/files/FishList");
+                    if(!f.exists() && !f.isDirectory()) {
+                        ArrayList<Fish> fList = new ArrayList<Fish>();
+                        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
+                    }
 
                     //Deserialize existing fish list to be able to append to it
                     fList = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
@@ -153,38 +180,11 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         //When permission granted
                         getLocation();
 
-                        //START GETLOCATION TEMP
-                        //....
-                        //END
-
-
-                        System.out.println("*** latitude inside setview ***: " + latitude);
-                        System.out.println("*** longitude inside setview ***: " + longitude);
-
-                        //Serialize fish (REMEMBER filename -> insert username)
-                        Fish fish = new Fish(title, weight, length, photoFileName, latitude, longitude); //gets date automatically from Fish - constructor
-                        fList.add(fish);
-                        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
                     } else {
                         //When permission denied
                         ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
                     }
-
-
-                    //Serialize fish (REMEMBER filename -> insert username)
-                    //Fish fish = new Fish(title, weight, length, photoFileName, "latitude", "longitude"); //gets date automatically from Fish - constructor
-                    //Fish fish = new Fish(title, weight, length, photoFileName, latitude, longitude); //gets date automatically from Fish - constructor
-                    //fList.add(fish);
-                    //SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
-
-
-
-                    // TODO Add to list and Serialized file
-                    //Jonas -> laita tänne latitude / longitude tiedot
-                    //Jonas -> tänne serialisointi -> fileen tallennus
-
-
 
                 })
                 .setNeutralButton("Add picture", null);
@@ -277,7 +277,6 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                 Location location = task.getResult();
                 if (location != null) {
                     try {
-                        System.out.println("*** getlocation method inside addnewfishpopup ***");
 
                         //Initialize geoCoder
                         Geocoder geocoder = new Geocoder(getActivity(),
@@ -288,12 +287,12 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
 
                         //Set latitude on TextView
                         latitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
-                        System.out.println("*** latitude inside addnewfishpopup ***: " + latitude);
+                        //System.out.println("*** latitude inside addnewfishpopup ***: " + latitude);
                         //latitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
 
                         //Set longitude on TextView
                         longitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
-                        System.out.println("*** longitude inside addnewfishpopup ***: " + longitude);
+                        //System.out.println("*** longitude inside addnewfishpopup ***: " + longitude);
                         //longitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
 
                         //Set country name
@@ -306,9 +305,14 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         //address.setText(addresses.get(0).getAddressLine(0));
 
                         //get weather:
-                        //URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
-                        //System.out.println("*** URLWeather *** :"+URLWeather);
-                        //readJSON(URLWeather);
+                        URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
+                        System.out.println("*** URLWeather *** :"+URLWeather);
+                        tempCelcius = readJSON(URLWeather);
+
+                        //save fish to list (REMEMBER FILENAME CHANGE)
+                        Fish fish = new Fish(title, weight, length, photoFileName, latitude, longitude, tempCelcius); //gets date automatically from Fish - constructor
+                        fList.add(fish);
+                        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
 
 
                     } catch (IOException e) {
@@ -318,4 +322,53 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
             }
         });
     }
+
+
+    public double readJSON (String URLWeather) {
+        System.out.println("*** readJSON metodi ***");
+        String json = getJSON(URLWeather);
+        System.out.println("JSON: "+json);
+
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            double tempKelvin = jsonObject.getJSONObject("main").getDouble("temp");
+            System.out.println("*** temperature in Kelvin: *** "+tempKelvin);
+            tempCelcius = tempKelvin - 273.15;
+            System.out.println("*** temperature in Celsius: *** "+tempCelcius);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    return tempCelcius;
+    }
+
+    public String getJSON (String URLWeather) {
+        System.out.println("*** getJSON metodi ***");
+        String response = null;
+
+        try {
+            URL url = new URL(URLWeather);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            InputStream in = new BufferedInputStream(conn.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while((line = br.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            response = sb.toString();
+            in.close();
+
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
 }

@@ -189,6 +189,7 @@ public class MainFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 getFish();
+                //initializeFishFile();
             }
         });
 
@@ -221,14 +222,26 @@ public class MainFragment extends Fragment {
         SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
     }
 
+    private void initializeFishFile() {
+        System.out.println("*** Initializing your catch file ***");
+        ArrayList<Fish> fList = new ArrayList<Fish>();
+
+        Fish f1 = new Fish();
+        fList.add(f1);
+        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
+    }
+
+
     private void listFish() {
-        System.out.println("*** List Fish method ***");
 
         ArrayList<Fish> fishHistory = new ArrayList<>();
         fishHistory = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
 
+        System.out.println();
+        System.out.println("*** ALl YOUR CATCHES: ***");
         for (Fish f : fishHistory) {
-            System.out.println(f.title + ": " + f.weight + "," + f.latitude + "," + f.longitude + "," + f.date2);
+            System.out.println(f.title + ": " + f.weight + "," + f.latitude + "," + f.longitude + "," + f.tempCelcius + "," + f.date2);
+            //System.out.println(f.title + ": " + f.weight + "," + f.latitude + "," + f.longitude + "," + f.date2);
         }
     }
 

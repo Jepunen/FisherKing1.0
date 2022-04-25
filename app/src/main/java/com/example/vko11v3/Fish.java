@@ -34,9 +34,15 @@ public class Fish implements Serializable {
     String longitude;
     Long date;
     Date date2;
+    Double tempCelcius;
+
+    String titleWeight;
+    String titleLength;
+    String titleDate;
+    String titleTempCelcius;
 
 
-    public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude, Long date) {
+    /*public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude, Long date) {
         this.title = title;
         this.weight = weight;
         this.length = length;
@@ -44,11 +50,14 @@ public class Fish implements Serializable {
         this.latitude = latitude;
         this.longitude = longitude;
         this.date = date;
-    }
+    }*/
+
 
     //Constructor with "Date date2" -> will be final when working with AddNewFishPopup
     //Date given automatically -> not received as parameter
-    public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude) {
+
+    public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude, Double tempCelcius) {
+    //public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude) {
         this.title = title;
         this.weight = weight;
         this.length = length;
@@ -56,6 +65,7 @@ public class Fish implements Serializable {
         this.latitude = latitude;
         this.longitude = longitude;
         this.date2 = Calendar.getInstance().getTime();
+        this.tempCelcius = tempCelcius;
     }
 
     //temp rakentaja2
@@ -69,13 +79,22 @@ public class Fish implements Serializable {
 
     //temp rakentaja3
     public Fish() {
-        this.title = "Särki";
+        /*this.title = "Särki";
         this.weight = 8.2;
         this.length = 4.5;
         this.picture = "https://fi.wikipedia.org/wiki/S%C3%A4rki#/media/Tiedosto:Rutilus_rutilus_Prague_Vltava_3.jpg";
         this.latitude = String.valueOf(61.011333);
         this.longitude = String.valueOf(25.614806);
-        this.date2 = Calendar.getInstance().getTime();
+        this.date2 = Calendar.getInstance().getTime();*/
+
+        this.title = "Species";
+        this.titleWeight = "Weigth";
+        this.titleLength = "Lenght";
+        this.picture = "Picture filename";
+        this.latitude = "Latitude";
+        this.longitude = "Longitude";
+        this.titleDate = "Time";
+        this.titleTempCelcius = "Temperature";
     }
 
 
