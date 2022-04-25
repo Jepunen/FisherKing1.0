@@ -11,7 +11,7 @@
         android:layout_height="wrap_content">
 
         <EditText
-            android:id="@+id/newFishName"
+            android:id="@+id/detailsFishName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:autofillHints=""
@@ -23,7 +23,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:id="@+id/newFishWeight"
+            android:id="@+id/detailsFishWeight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:autofillHints=""
@@ -33,10 +33,10 @@
             android:minHeight="48dp"
             android:textColorHint="#FFE4E4E4"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/newFishName" />
+            app:layout_constraintTop_toBottomOf="@+id/detailsFishName" />
 
         <ToggleButton
-            android:id="@+id/toggleButton"
+            android:id="@+id/toggleButtonDetails"
             android:layout_width="84dp"
             android:layout_height="49dp"
             android:layout_marginTop="44dp"
@@ -46,12 +46,12 @@
             android:textOn="@string/grams"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/newFishWeight"
+            app:layout_constraintStart_toEndOf="@+id/detailsFishWeight"
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="TextContrastCheck" />
 
         <EditText
-            android:id="@+id/newFishLength"
+            android:id="@+id/detailsFishLength"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:autofillHints=""
@@ -61,10 +61,10 @@
             android:minHeight="48dp"
             android:textColorHint="#FFE4E4E4"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/newFishWeight" />
+            app:layout_constraintTop_toBottomOf="@+id/detailsFishWeight" />
 
         <ImageView
-            android:id="@+id/newFishImageView"
+            android:id="@+id/detailsFishImageView"
             android:layout_width="177dp"
             android:layout_height="185dp"
             android:layout_marginStart="4dp"
@@ -72,19 +72,19 @@
             android:contentDescription="@string/image_of_fish"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/newFishLength"
+            app:layout_constraintTop_toBottomOf="@+id/detailsFishLength"
             tools:srcCompat="@tools:sample/avatars" />
 
         <TextView
-            android:id="@+id/textView12"
+            android:id="@+id/textView11"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="CM"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/newFishLength"
-            app:layout_constraintTop_toBottomOf="@+id/toggleButton" />
+            app:layout_constraintStart_toEndOf="@+id/detailsFishLength"
+            app:layout_constraintTop_toBottomOf="@+id/toggleButtonDetails" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -240,7 +240,7 @@ public class MainFragment extends Fragment {
         System.out.println();
         System.out.println("*** ALl YOUR CATCHES: ***");
         for (Fish f : fishHistory) {
-            System.out.println(f.title + ": " + f.weight + "," + f.latitude + "," + f.longitude + "," + f.tempCelcius + "," + f.locality +"," + f.date2);
+            System.out.println(f.title + ": " + f.weight + "," + f.latitude + "," + f.longitude + "," + f.tempCelcius + "," + f.locality +"," + f.date);
             //System.out.println(f.title + ": " + f.weight + "," + f.latitude + "," + f.longitude + "," + f.date2);
         }
     }

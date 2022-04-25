@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ToggleButton;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -66,6 +67,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
     EditText newFishName;
     EditText newFishWeight;
     EditText newFishLength;
+    ToggleButton toggle;
 
     // Save fish
     ArrayList<Fish> fList = new ArrayList<Fish>();
@@ -75,6 +77,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
     String title;
     double weight = 0.0;
     double length = 0.0;
+    boolean inGrams = false;
     String locality;
     // Save fish END
 
@@ -108,7 +111,8 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         newFishName   = (EditText) view.findViewById(R.id.newFishName);
         newFishWeight = (EditText) view.findViewById(R.id.newFishWeight);
         newFishLength = (EditText) view.findViewById(R.id.newFishLength);
-        imageView   = (ImageView) view.findViewById(R.id.newFishImageView);
+        imageView     = (ImageView) view.findViewById(R.id.newFishImageView);
+        toggle        = (ToggleButton) view.findViewById(R.id.toggleButton);
 
         AlertDialog dialog = (AlertDialog) getDialog();
 
@@ -139,6 +143,9 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
             public void afterTextChanged(Editable editable) {
                 buttonCanBePressed(!TextUtils.isEmpty(newFishName.getText().toString()));
             }
+        });
+        toggle.setOnCheckedChangeListener((compoundButton, b) -> {
+            inGrams = b;
         });
 
         // Initialize fusedLocationProviderClient
@@ -188,12 +195,14 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         System.out.println("*** no permission for location -> save wish without coordinates or weather data ***");
 
                         //save fish to list (REMEMBER FILENAME CHANGE)
-                        Fish fish = new Fish(title, weight, length, photoFileName);
+                        Fish fish = new Fish(title, weight, inGrams,length, photoFileName);
                         fList.add(fish);
                         SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
 
                     }
-
+                    /*Fish fish = new Fish(title, weight, inGrams, length, photoFileName);
+                    fList.add(fish);
+                    SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);*/
                 })
                 .setNeutralButton("Add picture", null);
 
@@ -321,7 +330,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         tempCelcius = readJSON(URLWeather);
 
                         //save fish to list (REMEMBER FILENAME CHANGE)
-                        Fish fish = new Fish(title, weight, length, photoFileName, latitude, longitude, tempCelcius, locality); //gets date automatically from Fish - constructor
+                        Fish fish = new Fish(title, weight, inGrams, length, photoFileName, latitude, longitude, tempCelcius, locality); //gets date automatically from Fish - constructor
                         fList.add(fish);
                         SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
 

@@ -1,11 +1,14 @@
 package com.example.vko11v3;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.text.Html;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -17,10 +20,13 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.SimpleFormatter;
 
 //REMEMBER to insert temperature as a variable in fish constructor
 
@@ -28,13 +34,14 @@ public class Fish implements Serializable {
 
     String title;
     Double weight;
+    boolean inGrams;
     Double length;
     String picture;
     String latitude;
     String longitude;
-    Long date;
-    Date date2;
+    String date;
     Double tempCelcius;
+
     String locality;
 
     //TEMP -> dont think these are needed -> unless we cant fix empty file crash issue otherwise
@@ -56,28 +63,34 @@ public class Fish implements Serializable {
 
 
     //Constructor with "Date date2" -> will be final when working with AddNewFishPopup
-    public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude, Double tempCelcius, String locality) {
+    public Fish(String title, Double weight, boolean inGrams,Double length, String picture, String latitude, String longitude, Double tempCelcius, String locality) {
     //public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude) {
         this.title = title;
         this.weight = weight;
+        this.inGrams = inGrams;
         this.length = length;
         this.picture = picture;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.date2 = Calendar.getInstance().getTime();
+        Calendar cal = Calendar.getInstance();
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+        this.date = date.format(cal.getTime());
         this.tempCelcius = tempCelcius;
         this.locality = locality;
     }
 
     //Constructor for when user has not given permission for location
-    public Fish(String title, Double weight, Double length, String picture) {
+    public Fish(String title, Double weight, boolean inGrams,Double length, String picture) {
         //public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude) {
         this.title = title;
         this.weight = weight;
+        this.inGrams = inGrams;
         this.length = length;
         this.picture = picture;
         this.locality = null;
-        this.date2 = Calendar.getInstance().getTime();
+        Calendar cal = Calendar.getInstance();
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+        this.date = date.format(cal.getTime());
     }
 
     //temp rakentaja2
@@ -128,6 +141,12 @@ public class Fish implements Serializable {
     public String getLongitude() {
         return longitude;
     }
+    public String getLocality() {
+        return locality;
+    }
+    public boolean isInGrams() {
+        return inGrams;
+    }
 
     public void setTitle(String title) {
         this.title = title;
@@ -147,12 +166,15 @@ public class Fish implements Serializable {
     public void setLongitude(String longitude) {
         this.longitude = longitude;
     }
+    public void setInGrams(boolean inGrams) {
+        this.inGrams = inGrams;
+    }
 
-    public Long getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Long date) {
+    public void setDate(String date) {
         this.date = date;
     }
 

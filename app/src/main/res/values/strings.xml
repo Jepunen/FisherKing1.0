@@ -55,6 +55,9 @@
     <string name="image_of_fish">Image of fish</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="verification_code">Verification code</string>
+    <string name="picture_of_a_fish">Picture of a fish</string>
+    <string name="caught_fish">Caught fish</string>
     <!-- NEW FISH POPUP - END -->
 
 </resources>

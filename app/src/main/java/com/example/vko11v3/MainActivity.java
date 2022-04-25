@@ -1,54 +1,26 @@
 package com.example.vko11v3;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureException;
-import androidx.camera.core.Preview;
-import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.LifecycleOwner;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
-import com.google.common.util.concurrent.ListenableFuture;
-
-import java.io.File;
-import java.util.Date;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainInterface {
     DrawerLayout drawerLayout;
@@ -110,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // depending on that set the default fragment as login fragment or main fragment
         if (sharedPref.getString("logged_in_as", null) != null) {
 
-            /*if ( !sharedPref.getBoolean("always_start_from_home", false) ) {
+            if ( !sharedPref.getBoolean("always_start_from_home", false) ) {
                 String last_page = sharedPref.getString("last_page", null);
                 if (last_page == "null") {
                     fragmentTransaction.replace(R.id.container_fragment, new LogInFragment(), "MY_FRAGMENT");
@@ -129,9 +101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             } else {
                 fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
-            }*/
-            fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
-
+            }
             setNavHeaderText();
         } else {
             fragmentTransaction.replace(R.id.container_fragment, new LogInFragment());
@@ -173,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragmentTransaction.commit();
         }
 
+        // All catches
         if (menuItem.getItemId() == R.id.navigationCatches) {
             fragmentManager = getSupportFragmentManager();
             fragmentTransaction = fragmentManager.beginTransaction();
@@ -222,7 +193,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         dialog.show(getSupportFragmentManager(), "Add new fish");
     }
 
-    @SuppressLint({"CommitPrefEdits", "SetTextI18n"})
     @Override
     public void showAddUsernamePopup(View view) {
 
@@ -231,6 +201,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    @Override
+    public void showFishDetails(Fish fish, int position) {
+
+        ShowFishDetailsPopup dialog = new ShowFishDetailsPopup(fish, position);
+        dialog.show(getSupportFragmentManager(), "Edit fish details");
+
+    }
+
+    @Override
+    public void showImageFullscreen(Fish fish) {
+
+        FullScreenImage dialog = new FullScreenImage(fish);
+        dialog.show(getSupportFragmentManager(), "Fullscreen image");
+
+    }
 }
 
 /* Help from sources:

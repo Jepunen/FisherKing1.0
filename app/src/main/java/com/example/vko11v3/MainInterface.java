@@ -9,4 +9,6 @@ public interface MainInterface {
     void setNavHeaderText();
     void showAddCatchPopup(View view);
     void showAddUsernamePopup(View view);
+    void showFishDetails(Fish fish, int position);
+    void showImageFullscreen(Fish fish);
 }

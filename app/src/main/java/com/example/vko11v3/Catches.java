@@ -8,28 +8,19 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
-
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
 
 
-public class Catches extends Fragment {
+public class Catches extends Fragment implements CatchesRecyclerViewAdapter.recyclerInterFace {
 
     ArrayList<Fish> catches = new ArrayList<>();
 
@@ -50,10 +41,16 @@ public class Catches extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
 
+        @SuppressLint("SdCardPath") File f = new File("/data/data/com.example.vko11v3/files/FishList");
+        if(!f.exists() && !f.isDirectory()) {
+            ArrayList<Fish> fList = new ArrayList<Fish>();
+            SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"FishList", fList);
+        }
+
         setUpRecyclerView();
 
-        CatchesRecyclerViewAdapter adapter = new CatchesRecyclerViewAdapter(getActivity(),
-                catches);
+        CatchesRecyclerViewAdapter adapter = new CatchesRecyclerViewAdapter(requireActivity(),
+                catches, this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
@@ -61,5 +58,16 @@ public class Catches extends Fragment {
     private void setUpRecyclerView (  ) {
         catches = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),"FishList");
         Collections.reverse(catches);
+    }
+
+    @Override
+    public void openFullScreenImage(Fish fish) {
+        ((MainInterface)requireActivity()).showImageFullscreen(fish);
+    }
+
+    @Override
+    public void openDetailsPopup(Fish fish, int position) {
+        ((MainInterface)requireActivity()).showFishDetails(fish, position);
+
     }
 }
