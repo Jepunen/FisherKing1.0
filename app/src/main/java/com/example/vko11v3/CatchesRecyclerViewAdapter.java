@@ -3,38 +3,29 @@ package com.example.vko11v3;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Environment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecyclerViewAdapter.MyViewHolder> {
 
     Context context;
     ArrayList<Fish> catches;
-
     recyclerInterFace rListener;
 
-
+    // Get Context, Arraylist and interface as parameters
     public CatchesRecyclerViewAdapter (Activity context, ArrayList<Fish> listOfCatches, recyclerInterFace rListener) {
         this.context = context;
         this.catches = listOfCatches;
@@ -46,10 +37,9 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
     public CatchesRecyclerViewAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         // Inflate layout and give look to rows
-
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.recycler_view_row, parent, false);
-
+        // Create a new ViewHolder with view and interface
         return new CatchesRecyclerViewAdapter.MyViewHolder(view, rListener);
     }
 
@@ -57,6 +47,8 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
     @Override
     public void onBindViewHolder(@NonNull CatchesRecyclerViewAdapter.MyViewHolder holder, @SuppressLint("RecyclerView") int position) {
 
+        // Initialize the values for each card in recyclerView
+        // and pass them to ViewHolder
         Fish fish = catches.get(position);
         if (fish.getWeight() == 0.0) {
             holder.title.setText(fish.getTitle() + " / weight not set" );
@@ -76,33 +68,34 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
         holder.fish = fish;
         holder.position = position;
 
+        // Get image folder Directory
         File mediaStorageDir = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "FisherKing");
         String storageDir = mediaStorageDir.getAbsolutePath();
 
+        // Convert from JPG -> Bitmap and
+        // add the image to the the recyclerView card
         Bitmap myBitmap = BitmapFactory.decodeFile(storageDir + "/" + catches.get(position).getPicture());
         if (!catches.get(position).getPicture().equals("null")) {
             holder.image.setRotation(90);
             holder.image.setImageBitmap(myBitmap);
-        } else {
+        } else { // no image == no ImageView
             holder.image.setVisibility(View.GONE);
         }
     }
 
-    @Override
+    @Override // How many items in total
     public int getItemCount() {
-        // How many items in total
         return catches.size();
     }
 
+    // Inflates the card with given parameters / info
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
-        // Basically onCreate
         TextView title, details, timePlace;
         ImageView image;
         CardView card;
         Fish fish;
         int position;
-
         recyclerInterFace rListener;
 
         public MyViewHolder(@NonNull View itemView, recyclerInterFace rListener) {
@@ -113,20 +106,14 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
             details = itemView.findViewById(R.id.recyclerRowDetail);
             timePlace = itemView.findViewById(R.id.recyclerRowTimePlace);
 
+            // Opens the view / edit fish details AlertDialog
             card = itemView.findViewById(R.id.cardView);
-            card.setOnClickListener(view -> {
-                rListener.openDetailsPopup(fish, position);
-            });
+            card.setOnClickListener(view -> rListener.openDetailsPopup(fish, position));
 
-
+            // Opens the image in AlertDialog with bigger ImageView
             image = itemView.findViewById(R.id.recyclerImageView);
-            image.setOnClickListener(view -> {
-                rListener.openFullScreenImage(fish);
-            });
-
-
+            image.setOnClickListener(view -> rListener.openFullScreenImage(fish));
         }
-
     }
 
     public interface recyclerInterFace {

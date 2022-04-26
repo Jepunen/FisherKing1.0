@@ -2,7 +2,7 @@ package com.example.vko11v3;
 
 import android.view.View;
 
-import androidx.camera.lifecycle.ProcessCameraProvider;
+// Explained in MainActivity
 
 public interface MainInterface {
     void hideNavToolbar(boolean hidden);

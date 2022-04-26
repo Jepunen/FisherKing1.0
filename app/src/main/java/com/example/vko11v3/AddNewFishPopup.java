@@ -262,7 +262,6 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
             Log.d("Fisher King", "failed to create directory");
         }
-
         // Return the file target for the photo based on filename
         return new File(mediaStorageDir.getPath() + File.separator + imageFileName);
     }
@@ -280,7 +279,6 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
             // No location permission so request permission
             ActivityCompat.requestPermissions(requireActivity(),
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
-
             return;
         }
 

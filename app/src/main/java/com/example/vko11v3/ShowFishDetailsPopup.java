@@ -3,7 +3,6 @@ package com.example.vko11v3;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,8 +19,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -44,20 +41,21 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
     Fish fish;
     int position;
     boolean isChecked;
+    boolean deleteOldImage = false;
 
-    ArrayList<Fish> fList = new ArrayList<>();
+    ArrayList<Fish> fList;
 
     // Camera
-    ImageView imageView;
     ActivityResultLauncher<Intent> activityResultLauncher;
     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
     File photoFile = null;
     String storageDir;
     @SuppressLint("DefaultLocale")
-    String photoFileName = "null";
-    String oldPhotoName  = "null";
+    String imageFileName = "null";
+    String oldImageName = "null";
     // Camera END
 
+    // Receive fish as object and it's position in ArrayList
     public ShowFishDetailsPopup(Fish fish, int pos) {
         this.fish = fish;
         this.position = pos;
@@ -69,11 +67,10 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
 
-        fList = getfList();
-
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.fragment_fish_details, null);
 
+        // Get image Dir
         File mediaStorageDir = new File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "FisherKing");
         storageDir = mediaStorageDir.getAbsolutePath() + "/" + fish.getPicture();
 
@@ -85,23 +82,23 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
         // Camera
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK) {
-
                 // Image view on popup
                 Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
                 image.setImageBitmap(bitmap);
                 image.setRotation(90);
                 image.setVisibility(View.VISIBLE);
-
+                // New image taken so delete old
+                deleteOldImage = true;
             }
         });
         // Camera END
 
         // Get elements
-        title  = (EditText) view.findViewById(R.id.detailsFishName);
-        weight = (EditText) view.findViewById(R.id.detailsFishWeight);
-        length = (EditText) view.findViewById(R.id.detailsFishLength);
-        toggle = (ToggleButton) view.findViewById(R.id.toggleButtonDetails);
-        image  = (ImageView) view.findViewById(R.id.detailsFishImageView);
+        title  = view.findViewById(R.id.detailsFishName);
+        weight = view.findViewById(R.id.detailsFishWeight);
+        length = view.findViewById(R.id.detailsFishLength);
+        toggle = view.findViewById(R.id.toggleButtonDetails);
+        image  = view.findViewById(R.id.detailsFishImageView);
 
         // Set values
         title.setText(fish.getTitle());
@@ -117,11 +114,11 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
         } else {
             length.setText(fish.getLength().toString());
         }
+        // KG / GRAMS toggle listener
         toggle.setChecked(fish.inGrams);
-        toggle.setOnCheckedChangeListener((compoundButton, b) -> {
-            isChecked = b;
-        });
+        toggle.setOnCheckedChangeListener((compoundButton, b) -> isChecked = b);
 
+        // Fish includes image -> set visible
         if (!fish.getPicture().equals("null")) {
             Bitmap bitmap = BitmapFactory.decodeFile(storageDir);
             image.setImageBitmap(bitmap);
@@ -129,19 +126,23 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
             image.setVisibility(View.VISIBLE);
         }
 
-
         builder.setView(view)
                 .setTitle("Edit fish details")
                 .setPositiveButton("Apply", (dialogInterface, i) -> {
 
+                    // Get ArrayList from file
                     fList = getfList();
                     Fish temp = fList.get(position);
 
-                    File pic = new File(storageDir + "/" + temp.getPicture());
-                    try {
-                        pic.delete();
-                    } catch (Exception ignored) {}
+                    // If new picture taken, delete old one
+                    if (deleteOldImage) {
+                        File pic = new File(storageDir + "/" + temp.getPicture());
+                        try {
+                            pic.delete();
+                        } catch (Exception ignored) {}
+                    }
 
+                    // Apply edits
                     temp.setTitle(title.getText().toString());
                     try {
                         temp.setWeight(Double.valueOf(weight.getText().toString()));
@@ -151,9 +152,13 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
                         temp.setLength(0.0);
                     }
                     temp.setInGrams(isChecked);
-                    temp.setPicture(photoFileName);
 
-                    // Reverse the list back for recyclerView
+                    // Set new image name to fish
+                    if (deleteOldImage) {
+                        temp.setPicture(imageFileName);
+                    }
+
+                    // Reverse the list for recyclerView
                     Collections.reverse(fList);
                     SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"FishList", fList);
 
@@ -163,13 +168,7 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
                     transaction.replace(R.id.container_fragment, catches ); // give your fragment container id in first parameter
                     transaction.commit();
                 }).setNegativeButton("Add Picture", null)
-                .setNeutralButton("Delete", (new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        dialog.dismiss();
-                    }
-                }));
-
+                .setNeutralButton("Delete", ((dialog, i) -> dialog.dismiss()));
         return builder.create();
     }
 
@@ -183,18 +182,20 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
         assert dialog != null;
         Button deleteConfirmation = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
         deleteConfirmation.setOnClickListener(view1 -> {
-
             AlertDialog.Builder alert = new AlertDialog.Builder(requireActivity());
             alert.setTitle("Delete?");
             alert.setMessage("Are you sure you want to delete?");
             alert.setPositiveButton("Yes", (dialog1, which) -> {
 
+                // Image that the fish had saved
                 File pic = new File(storageDir);
                 try {
                     pic.delete();
                 } catch (Exception ignored) {
                     Toast.makeText(requireActivity(), "Couldn't delete the picture", Toast.LENGTH_SHORT).show();
                 }
+                // Get list, remove fish, save list
+                fList = getfList();
                 fList.remove(position);
                 // Reverse list for recycler view
                 Collections.reverse(fList);
@@ -216,9 +217,8 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
         Button addPicture = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
         addPicture.setOnClickListener(view1 -> {
 
-
             // Create a File reference for future access
-            photoFile = getPhotoFileUri(photoFileName);
+            photoFile = getImageFileUri(imageFileName);
 
             // wrap File object into a content provider
             // required for API >= 24
@@ -233,13 +233,11 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
                 activityResultLauncher.launch(intent);
             }
         });
-
         if ( image.getDrawable() == null ) {
             addPicture.setText("Add picture");
         } else {
             addPicture.setText("Retake picture");
         }
-
         // Camera END
     }
 
@@ -251,14 +249,13 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
     }
 
     // Create a Directory for the photo to be saved at
-    // + save the photo there when taken
     @SuppressLint("DefaultLocale")
-    public File getPhotoFileUri(String fileName) {
+    public File getImageFileUri(String fileName) {
 
-        oldPhotoName  = photoFileName;
-        photoFileName = String.format("%d.jpg", System.currentTimeMillis());
+        oldImageName = imageFileName;
+        imageFileName = String.format("%d.jpg", System.currentTimeMillis());
 
-        // Get safe storage directory for photos
+        // Get a safe storage directory for photos
         File mediaStorageDir = new File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "FisherKing");
         storageDir = mediaStorageDir.getAbsolutePath();
 
@@ -266,8 +263,7 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
         if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
             Log.d("Fisher King", "failed to create directory");
         }
-
         // Return the file target for the photo based on filename
-        return new File(mediaStorageDir.getPath() + File.separator + photoFileName);
+        return new File(mediaStorageDir.getPath() + File.separator + imageFileName);
     }
 }

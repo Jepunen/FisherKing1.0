@@ -15,6 +15,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Switch homeStart;
     TextView headerText;
 
-
     @SuppressLint({"SetTextI18n", "CommitPrefEdits"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,31 +62,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Navigation drawer header text
         View headerView = navigationView.getHeaderView(0);
-        headerText = (TextView) headerView.findViewById(R.id.drawer_header);
+        headerText = headerView.findViewById(R.id.drawer_header);
 
-
+        // Get user data file
         SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
 
         // -- Load first fragment --
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
 
-
         // Start from home page listener
         homeStartPage = navigationView.getMenu().findItem(R.id.navigationHomeStart);
-        homeStart = (Switch) homeStartPage.getActionView().findViewById(R.id.drawerSwitch);
+        homeStart = homeStartPage.getActionView().findViewById(R.id.drawerSwitch);
+        // Get saved switch state and set it
         homeStart.setChecked(sharedPref.getBoolean("always_start_from_home", true));
-        homeStart.setOnCheckedChangeListener((compoundButton, b) -> {
-            sharedPref.edit().putBoolean("always_start_from_home", b).apply();
-        });
+        // Listener to update switch state
+        homeStart.setOnCheckedChangeListener((compoundButton, b)
+                -> sharedPref.edit().putBoolean("always_start_from_home", b).apply());
 
-        // Check if user has Remember me option checked, and who is logged in
+        // Check if user has "Remember me" option checked, and who is logged in
         // depending on that set the default fragment as login fragment or main fragment
         if (sharedPref.getString("logged_in_as", null) != null) {
 
+            // If the user wants to always start from home page
             if ( !sharedPref.getBoolean("always_start_from_home", false) ) {
+                // Get the last page user has been saved on
                 String last_page = sharedPref.getString("last_page", null);
-                if (last_page == "null") {
+                if (last_page.equals("null")) {
+                    // User hasn't been on home or catches page so assume they're not logged in
                     fragmentTransaction.replace(R.id.container_fragment, new LogInFragment(), "MY_FRAGMENT");
                 } else {
                     switch (Objects.requireNonNull(last_page)) {
@@ -101,23 +104,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             break;
                     }
                 }
-            } else {
+            } else { // User wants to start from home
                 fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
             }
+            // Update nav header text
             setNavHeaderText();
-        } else {
+        } else { // User not logged in -> load login page
             fragmentTransaction.replace(R.id.container_fragment, new LogInFragment());
         }
         fragmentTransaction.commit();
         // -- Load First fragment - END --
 
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
+        // Check if has permission to use location
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            // No location permission so request permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
+            return;
+        }
 
         // Nav drawer night mode switch listener
         nightModeSwitch = navigationView.getMenu().findItem(R.id.navigationNightModeSwitch);
-        nightMode = (Switch) nightModeSwitch.getActionView().findViewById(R.id.drawerSwitch);
+        nightMode = nightModeSwitch.getActionView().findViewById(R.id.drawerSwitch);
+        // Get saved switch state and set it
         nightMode.setChecked(sharedPref.getBoolean("night_mode", true));
+        // Listener to update saved switch state
         nightMode.setOnCheckedChangeListener((compoundButton, b) -> {
             sharedPref.edit().putBoolean("night_mode", b).apply();
             if (b) {
@@ -138,15 +152,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragmentTransaction.replace(R.id.container_fragment, new MainFragment());
             fragmentTransaction.commit();
         }
-
-        // 2nd page
+        // 2nd page - Hidden currently, no need atm
         if (menuItem.getItemId() == R.id.navigationSettings) {
             fragmentManager = getSupportFragmentManager();
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.container_fragment, new SettingsFragment());
             fragmentTransaction.commit();
         }
-
         // All catches
         if (menuItem.getItemId() == R.id.navigationCatches) {
             fragmentManager = getSupportFragmentManager();
@@ -154,14 +166,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragmentTransaction.replace(R.id.container_fragment, new Catches());
             fragmentTransaction.commit();
         }
-
         // Logout
         if (menuItem.getItemId() == R.id.navigationLogout) {
 
+            // Get user data file
             SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+            // Set values to null to indicate user not being logged in
             sharedPref.edit().putString("logged_in_as", null).apply();
             sharedPref.edit().putString("current_user", null).apply();
 
+            // Redirect to login page
             fragmentManager = getSupportFragmentManager();
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.container_fragment, new LogInFragment());
@@ -170,7 +184,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    @Override
+    /* * * * * * * * * * * * * * *
+     * BELOW MainInterface METHODS
+     * * * * * * * * * * * * * * */
+
+    @Override // Enables / disables the navigation toolbar to prevent access to it
     public void hideNavToolbar(boolean shouldLock) {
         if (shouldLock) {
             toolbar.setVisibility(View.GONE);
@@ -180,57 +198,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @SuppressLint("SetTextI18n")
-    @Override
+    @Override // Updates the navigation drawer header with the users name
     public void setNavHeaderText() {
+        // Get user data file
         SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
         String user = sharedPref.getString("current_user", null);
         if (user != null) {
             headerText.setText("Welcome back " + user);
         } else {
+            // If someone manages to login without inputting username
+            // resulting in username being null
             headerText.setText("Who dis? Anonymous?");
         }
     }
 
-    @Override
+    @Override // Shows the popup for adding a new fish
     public void showAddCatchPopup(View view) {
         AddNewFishPopup dialog = new AddNewFishPopup();
         dialog.show(getSupportFragmentManager(), "Add new fish");
     }
 
-    @Override
+    @Override // Shows the popup for adding username (biometric user)
     public void showAddUsernamePopup(View view) {
-
         AddUsernamePopup dialog = new AddUsernamePopup();
         dialog.show(getSupportFragmentManager(), "Add username");
-
     }
 
-    @Override
+    @Override // Shows fish details / edit popup
     public void showFishDetails(Fish fish, int position) {
-
         ShowFishDetailsPopup dialog = new ShowFishDetailsPopup(fish, position);
         dialog.show(getSupportFragmentManager(), "Edit fish details");
-
     }
 
-    @Override
+    @Override // Shows fullscreen image popup
     public void showImageFullscreen(Fish fish) {
-
         FullScreenImage dialog = new FullScreenImage(fish);
         dialog.show(getSupportFragmentManager(), "Fullscreen image");
-
     }
 }
-
-/* Help from sources:
- * https://www.youtube.com/watch?v=USenYOBJw9Y
- * https://www.studytonight.com/android/get-edittext-set-textview
- *
- * Location:
- * https://www.youtube.com/watch?v=Ak1O9Gip-pg
- *
- * Weather:
- * https://www.youtube.com/watch?v=VHgM_MQBQPg&list=PL1tIj6UC0gctBrAVI9GD4G_pgw7tOUQEc&index=2
- * https://openweathermap.org/current
- *
- */

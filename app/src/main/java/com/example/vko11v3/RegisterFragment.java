@@ -19,9 +19,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,15 +58,14 @@ public class RegisterFragment extends Fragment {
             SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
 
+            // Check if username already exists
             if ( sharedPref.contains(user) ) {
                 Toast.makeText(requireActivity(), "This username is taken", Toast.LENGTH_LONG).show();
             } else {
                 // Check that none of the input fields are empty
                 if ( TextUtils.isEmpty(user) || TextUtils.isEmpty(pass) || TextUtils.isEmpty(emal) ) {
                     message.setText(R.string.empty_field);
-
                 } else {
-
                     // Checks and tells user if their password is a strong password
                     if (passwordChecker(pass, "^.{12,20}$")) {
                         message.setText("Password must be between 12-20 characters");
@@ -103,21 +99,20 @@ public class RegisterFragment extends Fragment {
         ImageButton goBack = view.findViewById(R.id.registerGoBack);
         goBack.setOnClickListener(view12 -> goToLoginPage());
 
+        // Button for wiping user data file
         Button wipe = view.findViewById(R.id.registerWipeData);
+        //wipe.setVisibility(View.GONE);
         wipe.setOnClickListener(view1 -> {
-
             SharedPreferences sharedPrefDefault = requireActivity().getPreferences(Context.MODE_PRIVATE);
             SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
-
             sharedPref.edit().clear().apply();
             sharedPrefDefault.edit().clear().apply();
         });
-
         // -- Get buttons and add listeners - END --
     }
 
-    public static boolean passwordChecker(String password,String regex)
-    {
+    // Checks if password meets requirements depending on regex
+    public static boolean passwordChecker(String password,String regex) {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(password);
         return !matcher.matches();

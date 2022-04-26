@@ -2,7 +2,6 @@ package com.example.vko11v3;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 
 import androidx.biometric.BiometricPrompt;
@@ -22,13 +21,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
-
-import org.w3c.dom.Text;
-
 import java.security.NoSuchAlgorithmException;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 
 public class LogInFragment extends Fragment {
@@ -38,7 +31,6 @@ public class LogInFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         return inflater.inflate(R.layout.fragment_login, container, false);
     }
 
@@ -47,9 +39,8 @@ public class LogInFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Hides the navigation toolbar from the user
+        // Hides the navigation toolbar from the user (since it's login page)
         ((MainInterface) requireActivity()).hideNavToolbar(true);
-
 
         // -- Get screen elements by ID --
         message  = view.findViewById(R.id.loginMessage);
@@ -57,36 +48,36 @@ public class LogInFragment extends Fragment {
         EditText password = view.findViewById(R.id.resetEmail);
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch rememberMe = view.findViewById(R.id.loginRememberMe);
-
         // -- Get screen elements by ID - END --
 
-
         // -- Get buttons and add listeners --
+        // "Login" button
         Button loginButton = view.findViewById(R.id.sendEmail);
         loginButton.setOnClickListener(view1 -> {
-
             String user = username.getText().toString();
             String pass = password.getText().toString();
-
             try {
+                // Valid login = sends user to Home page
+                // Invalid login = tells the user mismatching credentials
                 this.checkUser(user, pass, rememberMe.isChecked());
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
-
         });
 
-        // On button click, open the register fragment
+        // "Register" button, redirects to register page
         Button registerButton = view.findViewById(R.id.loginRegisterButton);
         registerButton.setOnClickListener(view12 -> {
             Fragment register = new RegisterFragment();
             FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_fragment, register ); // give your fragment container id in first parameter
+            transaction.replace(R.id.container_fragment, register );
             transaction.commit();
         });
 
         // Textview "forgot password" click, open reset password fragment
         TextView resetPassword = view.findViewById(R.id.forgotPassword);
+        // Set visibility to VISIBLE if add reset password
+        resetPassword.setVisibility(View.GONE);
         resetPassword.setOnClickListener(view1 -> {
             Fragment reset = new ResetPassword();
             FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
@@ -94,61 +85,64 @@ public class LogInFragment extends Fragment {
             transaction.commit();
         });
 
-
-        // Finger print login START
+        // -- Biometrics login - START --
+        // Initialize executor and prompt for biometrics
         Executor executor;
         BiometricPrompt biometricPrompt;
         BiometricPrompt.PromptInfo promptInfo;
-
         executor = ContextCompat.getMainExecutor(requireContext());
+
+        // Create biometric prompt
         biometricPrompt = new BiometricPrompt(LogInFragment.this, executor, new BiometricPrompt.AuthenticationCallback() {
-            @Override
+            @Override // Auth. cancelled or device doesn't have biometric login
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
                 Toast.makeText(requireActivity(), "Authentication error", Toast.LENGTH_SHORT).show();
             }
 
             @SuppressLint("CommitPrefEdits")
-            @Override
+            @Override // Auth. successful
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
 
+                // Get user data file
                 SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
 
+                // First time login with biometrics, so create username
                 if (sharedPref.getString("biometric_user", null) == null) {
                     ((MainInterface) requireActivity()).showAddUsernamePopup(view);
                 }
-                sharedPref.edit().putString("current_user", sharedPref.getString("biometric_user", null)).apply();
-                sharedPref.edit().putString("logged_in_as", sharedPref.getString("biometric_user", null)).apply();
+                // Set user as logged in
+                String user = sharedPref.getString("biometric_user", null);
+                sharedPref.edit().putString("current_user", user).apply();
+                sharedPref.edit().putString("logged_in_as", user).apply();
+                // Update nav header
                 ((MainInterface) requireActivity()).setNavHeaderText();
                 goToHomeFragment();
             }
 
-            @Override
+            @Override // Necessary but never got this message, so not sure when executed
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
                 Toast.makeText(requireActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
             }
-        }) {
-        };
+        });
 
+        // Build prompt
         promptInfo = new BiometricPrompt.PromptInfo.Builder()
                 .setTitle("Biometric login")
                 .setSubtitle("Log in using your biometric credential")
                 .setNegativeButtonText("Use account password")
                 .build();
 
+        // "Login with fingerprint" button
         Button fingerprint = view.findViewById(R.id.fingerPrintLogin);
         fingerprint.setOnClickListener(view1 -> {
-
+            // Show biometric prompt
             biometricPrompt.authenticate(promptInfo);
-
         });
-        // Finger print login - END
-
-
+        // -- Biometric login - END --
         // -- Get buttons and add listeners - END --
-
     }
 
     // Checks if the username and password combination exists
@@ -158,6 +152,7 @@ public class LogInFragment extends Fragment {
 
         String savedPassword;
 
+        // Fetch user data file
         SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
         savedPassword = sharedPref.getString(username, null);
 
@@ -166,10 +161,9 @@ public class LogInFragment extends Fragment {
         String hashSaltPassword = PasswordHashSalt.getSecurePassword(password, salt);
 
         if (hashSaltPassword.equals(savedPassword)) {
-
             message.setText("Successfully logged in");
 
-            // Checks if logged in is enabled.
+            // Checks if stay logged in is enabled.
             if ( stayLoggedIn ) {
                 // Adds user as logged in
                 sharedPref.edit().putString("logged_in_as", username).apply();
@@ -177,12 +171,12 @@ public class LogInFragment extends Fragment {
                 // Either does nothing, or removes user from being logged in
                 sharedPref.edit().putString("logged_in_as", null).apply();
             }
+            // Adds user as the current user
             sharedPref.edit().putString("current_user", username).apply();
+            // Updates the nav header text
             ((MainInterface) requireActivity()).setNavHeaderText();
-
             // Redirects user to the home page since login was successful
             goToHomeFragment();
-
         } else {
             message.setText(R.string.wrong_credentials);
         }
@@ -195,5 +189,4 @@ public class LogInFragment extends Fragment {
         transaction.replace(R.id.container_fragment, main );
         transaction.commit();
     }
-
 }

@@ -24,12 +24,11 @@ public class AddUsernamePopup extends AppCompatDialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.fragment_add_username_popup, null);
 
         // Get elements by ID
-        username = (EditText) view.findViewById(R.id.usernamePopupEditText);
+        username = view.findViewById(R.id.usernamePopupEditText);
 
         // Title text changed listener
         username.addTextChangedListener(new TextWatcher() {
@@ -44,16 +43,14 @@ public class AddUsernamePopup extends AppCompatDialogFragment {
                 buttonCanBePressed(!TextUtils.isEmpty(username.getText().toString()));
             }
         });
-
         builder.setView(view)
                 .setTitle("Add username")
                 .setPositiveButton("Add username", (dialogInterface, i) -> {
 
-                    // Adds username for biometric login and sets user as current user
+                    // Adds username for biometric login
                     SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
                     String user = username.getText().toString();
                     sharedPref.edit().putString("biometric_user", user).apply();
-                    sharedPref.edit().putString("current_user", user).apply();
                     ((MainInterface) requireActivity()).setNavHeaderText();
                 });
         return builder.create();

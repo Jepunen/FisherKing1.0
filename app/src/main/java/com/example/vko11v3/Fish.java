@@ -91,16 +91,7 @@ public class Fish implements Serializable {
     public void setPicture(String picture) {
         this.picture = picture;
     }
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
     public void setInGrams(boolean inGrams) {
         this.inGrams = inGrams;
-    }
-    public void setDate(String date) {
-        this.date = date;
     }
 }

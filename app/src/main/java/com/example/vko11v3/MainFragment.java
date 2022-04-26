@@ -10,14 +10,11 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.text.Editable;
 import android.text.Html;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,12 +24,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,10 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -64,68 +54,30 @@ public class MainFragment extends Fragment {
     TextView latitude, longitude, countryName, locality, address;
     FusedLocationProviderClient fusedLocationProviderClient;
 
-    //getFish variables (temp)
+    //getFish variables TEMP
     Button btFish;
-
-    //listFish variables (temp)
     Button btListFish;
-
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
-        return view;
+        return inflater.inflate(R.layout.fragment_main, container, false);
     }
 
     @SuppressLint("CommitPrefEdits")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        // Show navigation toolbar
         ((MainInterface) requireActivity()).hideNavToolbar(false);
 
         // Set as last been on fragment
         SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
         sharedPref.edit().putString("last_page", "Main").apply();
 
-        TextView textView = view.findViewById(R.id.textView);
-        textView.setTextSize(Settings.getInstance().fonttikoko);
-        textView.setAllCaps(Settings.getInstance().caps);
-        textView.getLayoutParams().height = Settings.getInstance().korkeus;
-        textView.getLayoutParams().width = Settings.getInstance().leveys;
-
-        EditText editText = view.findViewById(R.id.editText);
-        editText.setEnabled(Settings.getInstance().editTextEnable);
-
-        TextView luettavaTeksti = view.findViewById(R.id.luettavaTeksti);
-        TextView displayText = view.findViewById(R.id.displayText);
-        TextView kielivalinta = view.findViewById(R.id.kielivalinta);
-
         //get weather
         temperature = view.findViewById(R.id.temperature);
-
-        editText.addTextChangedListener(new TextWatcher() {
-
-            public void afterTextChanged(Editable s) {
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                // Tässä kohtaa muokkaa asetuksia. Tuo parametri s on edittext-kentän tämänhetkinen arvo -> aseta se asetuksiin
-                Settings.getInstance().editTextTallennus = s;
-                System.out.println("menikö s settingsseihin?: " + Settings.getInstance().editTextTallennus);
-            }
-        });
-
-        if (Settings.getInstance().editTextEnable == false) {
-            luettavaTeksti.setText(Settings.getInstance().editTextTallennus);
-        }
-
-        displayText.setText(Settings.getInstance().T4DisplayText);
-        kielivalinta.setText("Kieli:" + Settings.getInstance().T4Kieli);
+        btTemperature = view.findViewById(R.id.btTemperature);
 
         //get location elements:
         btLocation = view.findViewById(R.id.btLocation);
@@ -138,75 +90,51 @@ public class MainFragment extends Fragment {
 
         // get temperature:
 
-        //Is this still necessary?:
-        if (android.os.Build.VERSION.SDK_INT > 9) {
+        //Is this still necessary?: COMMENTED OUT IF STATEMENT TO TEST
+        /*if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
-        }
-        btTemperature = view.findViewById(R.id.btTemperature);
-
+        }*/
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
         // Initialize fusedLocationProviderClient
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity()); //ei pelkkä this, koska ollaan fragmentissa
-
-        btLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //check permission
-                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                        //mainActivity vai MainFragment -> doesnt seem to work
-                        //not context: vs. activity -> with either
-                        == PackageManager.PERMISSION_GRANTED) {
-                    //When permission granted
-                    getLocation();
-                } else {
-                    //When permission denied
-                    ActivityCompat.requestPermissions(getActivity(),
-                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
-                }
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+        btLocation.setOnClickListener(view1 -> {
+            // Check permission
+            if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                // If permission to get location
+                getLocation();
+            } else {
+                // Not permission to get location
+                ActivityCompat.requestPermissions(requireActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
             }
         });
 
+        // Floating "+" button listener
         FloatingActionButton addCatch = view.findViewById(R.id.floatingAddCatch);
-        addCatch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MainInterface) requireActivity()).showAddCatchPopup(view);
-            }
+        addCatch.setOnClickListener(view12 -> ((MainInterface) requireActivity()).showAddCatchPopup(view12));
+
+        // "Get temperature" button listener
+        btTemperature.setOnClickListener(view13 -> {
+            //readJSON(URLWeather);
+            System.out.println("*** test - get temperature button pressed ***");
         });
 
-        btTemperature.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //readJSON(URLWeather);
-                System.out.println("*** test - get temperature button pressed ***");
-            }
-        });
-
-        //get Fish
+        // Get Fish button listener
         btFish = view.findViewById(R.id.btFish);
-        btFish.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getFish();
-                //initializeFishFile();
-            }
-        });
+        btFish.setOnClickListener(view14 -> createFish());
 
-        //list Fish
+        // System out print fish list button listener
         btListFish = view.findViewById(R.id.btListFish);
-        btListFish.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listFish();
-            }
-        });
+        btListFish.setOnClickListener(view15 -> listFish());
 
     }
 
-    // temp method -> can be removed later
-    // connected to "New Fish" button -> empties arraylist and adds 3 "fixed" fishes to it
-    private void getFish() {
+    // Creates 3 fish and adds? them to the file - TEMP
+    private void createFish() {
 
         ArrayList<Fish> fList = new ArrayList<>();
         Fish f1 = new Fish("Särki", 120.0, true, 0.0, "null");
@@ -217,13 +145,13 @@ public class MainFragment extends Fragment {
         fList.add(f2);
         fList.add(f3);
 
-        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
+        SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"FishList", fList);
     }
 
+    // Prints fish out to console - TEMP
     private void listFish() {
-
-        ArrayList<Fish> fishHistory = new ArrayList<>();
-        fishHistory = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
+        ArrayList<Fish> fishHistory;
+        fishHistory = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),"FishList");
 
         System.out.println();
         System.out.println("*** ALl YOUR CATCHES: ***");
@@ -232,58 +160,60 @@ public class MainFragment extends Fragment {
         }
     }
 
-    //get location:
+    // Get location
     private void getLocation() {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),
+        // Check if permission to get location
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            Snackbar.make(getView(), "Give permissions **temp**", 3);
-
+            // No location permission so request permission
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
             return;
         }
-        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                //Initialize location
-                Location location = task.getResult();
-                if (location != null) {
-                    try {
-                        //Initialize geoCoder
-                        Geocoder geocoder = new Geocoder(getActivity(),
-                                Locale.getDefault());
-                        //Initialize address list
-                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                        //List<Address> addresses = geocoder.getFromLocation(61.008106, 25.618022, 1);
 
-                        //Set latitude on TextView
-                        latitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
-                        //latitude.setText(Html.fromHtml(String.valueOf(61.008106)));
-                        //Set longitude on TextView
-                        longitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
-                        //longitude.setText(Html.fromHtml(String.valueOf(25.618022)));
-                                //Set country name
-                                countryName.setText(addresses.get(0).getCountryName());
-                        //Set locality
-                        locality.setText(addresses.get(0).getLocality());
-                        //Set address
-                        address.setText(addresses.get(0).getAddressLine(0));
-                        // -> Check "lake" if you have the time
+        // Add listener for when the location data is received
+        // if no location data is received this never executes
+        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+            //Initialize location
+            Location location = task.getResult();
+            if (location != null) {
+                try {
+                    //Initialize geoCoder
+                    Geocoder geocoder = new Geocoder(getActivity(),
+                            Locale.getDefault());
+                    //Initialize address list
+                    List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                    //List<Address> addresses = geocoder.getFromLocation(61.008106, 25.618022, 1);
 
-                        //get weather:
-                        URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
-                        System.out.println("*** URLWeather *** :"+URLWeather);
-                        readJSON(URLWeather);
+                    //Set latitude on TextView
+                    latitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
+                    //latitude.setText(Html.fromHtml(String.valueOf(61.008106)));
+                    //Set longitude on TextView
+                    longitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
+                    //longitude.setText(Html.fromHtml(String.valueOf(25.618022)));
+                    //Set country name
+                    countryName.setText(addresses.get(0).getCountryName());
+                    //Set locality
+                    locality.setText(addresses.get(0).getLocality());
+                    //Set address
+                    address.setText(addresses.get(0).getAddressLine(0));
+                    // -> Check "lake" if you have the time
 
+                    //get weather:
+                    URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
+                    System.out.println("*** URLWeather *** :"+URLWeather);
+                    readJSON(URLWeather);
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
     }
 
+    @SuppressLint("SetTextI18n")
     public void readJSON (String URLWeather) {
         String json = getJSON(URLWeather);
         System.out.println("JSON: "+json);
@@ -311,22 +241,16 @@ public class MainFragment extends Fragment {
             InputStream in = new BufferedInputStream(conn.getInputStream());
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             StringBuilder sb = new StringBuilder();
-            String line = null;
+            String line;
             while((line = br.readLine()) != null) {
                 sb.append(line).append("\n");
             }
             response = sb.toString();
             in.close();
 
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return response;
     }
-
 }
