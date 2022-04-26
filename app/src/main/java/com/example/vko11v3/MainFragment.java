@@ -208,10 +208,10 @@ public class MainFragment extends Fragment {
     // connected to "New Fish" button -> empties arraylist and adds 3 "fixed" fishes to it
     private void getFish() {
 
-        ArrayList<Fish> fList = new ArrayList<Fish>();
-        Fish f1 = new Fish("Särki", 2.2, 3.3, String.valueOf(61.011333), String.valueOf(25.614806));
-        Fish f2 = new Fish("Hauki", 5.5, 3.3, String.valueOf(61.011333), String.valueOf(25.614806));
-        Fish f3 = new Fish("Ahven", 4.4, 3.3, String.valueOf(61.011333), String.valueOf(25.614806));
+        ArrayList<Fish> fList = new ArrayList<>();
+        Fish f1 = new Fish("Särki", 120.0, true, 0.0, "null");
+        Fish f2 = new Fish("Ahven", 300.0, true, 0.0, "null");
+        Fish f3 = new Fish("Kuha", 1.2, false, 0.0, "null");
 
         fList.add(f1);
         fList.add(f2);
