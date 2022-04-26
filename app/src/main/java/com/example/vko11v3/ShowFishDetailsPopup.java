@@ -77,19 +77,21 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
         File mediaStorageDir = new File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "FisherKing");
         storageDir = mediaStorageDir.getAbsolutePath() + "/" + fish.getPicture();
 
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
+            Log.d("Fisher King", "failed to create directory");
+        }
+
         // Camera
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-                if (result.getResultCode() == Activity.RESULT_OK) {
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
 
-                    // Image view on popup
-                    Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-                    image.setImageBitmap(bitmap);
-                    image.setRotation(90);
-                    image.setVisibility(View.VISIBLE);
+                // Image view on popup
+                Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+                image.setImageBitmap(bitmap);
+                image.setRotation(90);
+                image.setVisibility(View.VISIBLE);
 
-                }
             }
         });
         // Camera END

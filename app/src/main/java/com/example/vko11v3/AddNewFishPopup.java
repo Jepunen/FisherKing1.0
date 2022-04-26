@@ -28,8 +28,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -41,8 +39,6 @@ import androidx.core.content.FileProvider;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,14 +50,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 public class AddNewFishPopup extends AppCompatDialogFragment {
 
@@ -71,7 +63,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
     ToggleButton toggle;
 
     // Save fish
-    ArrayList<Fish> fList = new ArrayList<Fish>();
+    ArrayList<Fish> fList = new ArrayList<>();
     FusedLocationProviderClient fusedLocationProviderClient;
     String latitude;
     String longitude;
@@ -93,15 +85,11 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
     ImageView imageView;
     ActivityResultLauncher<Intent> activityResultLauncher;
     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-    File photoFile = null;
+    File imageFile = null;
     String storageDir;
     @SuppressLint("DefaultLocale")
-    String photoFileName = "null";
+    String imageFileName = "null";
     // Camera END
-
-    // Location
-    boolean isLocation = false;
-    // Location END
 
     @NonNull
     @Override
@@ -112,23 +100,29 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.fragment_add_new_fish, null);
 
+        // Initialize fusedLocationProviderClient
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+
         // Find screen elements by ID
-        newFishName   = (EditText) view.findViewById(R.id.newFishName);
-        newFishWeight = (EditText) view.findViewById(R.id.newFishWeight);
-        newFishLength = (EditText) view.findViewById(R.id.newFishLength);
-        imageView     = (ImageView) view.findViewById(R.id.newFishImageView);
-        toggle        = (ToggleButton) view.findViewById(R.id.toggleButton);
+        newFishName   = view.findViewById(R.id.newFishName);
+        newFishWeight = view.findViewById(R.id.newFishWeight);
+        newFishLength = view.findViewById(R.id.newFishLength);
+        imageView     = view.findViewById(R.id.newFishImageView);
+        toggle        = view.findViewById(R.id.toggleButton);
 
         // Camera
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             // Executes when a photo is taken and "OK" is pressed
+            // and saves the taken image to the allocated file spot
             if (result.getResultCode() == Activity.RESULT_OK) {
-                // Photo saved here to the location that was allocated
                 // Image view on popup
-                Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+                Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
                 imageView.setImageBitmap(bitmap);
                 imageView.setRotation(90);
                 imageView.setVisibility(View.VISIBLE);
+            }
+            if (result.getResultCode() == Activity.RESULT_CANCELED) {
+                Toast.makeText(requireActivity(), "Cancelled", Toast.LENGTH_SHORT).show();
             }
         });
         // Camera END
@@ -147,18 +141,15 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
             }
         });
         // Listener for KG / GRAMS toggle button
-        toggle.setOnCheckedChangeListener((compoundButton, b) -> {
-            inGrams = b;
-        });
-
-        // Initialize fusedLocationProviderClient
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity()); //ei pelkkä this, koska ollaan fragmentissa
+        toggle.setOnCheckedChangeListener((compoundButton, b) -> inGrams = b);
 
         builder.setView(view)
                 .setTitle("Add new fish")
                 // Creates a new fish object and saves it to an array
                 .setPositiveButton("Add", (dialogInterface, i) -> {
 
+                    // Title cannot be empty, so set text
+                    // (see ~130 newFishName listener and ~190 buttonCanBePressed)
                     title = newFishName.getText().toString();
                     weight = 0.0;
                     length = 0.0;
@@ -171,56 +162,23 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         length = Double.parseDouble(newFishLength.getText().toString());
                     }
 
-                    //"Pre"Serialize arraylist if empty
-                    @SuppressLint("SdCardPath") File f = new File("/data/data/com.example.vko11v3/files/FishList");
-                    if(!f.exists() && !f.isDirectory()) {
-                        ArrayList<Fish> fList = new ArrayList<Fish>();
-                        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
-                    }
+                    // Get ArrayList from file
+                    fList = getFishArrayFromFile();
 
-                    //Deserialize existing fish list to be able to append to it
-                    fList = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
+                    // Create a base fish without location data
+                    Fish fish = new Fish(title, weight, inGrams, length, imageFileName);
+                    addFishToFile(fish);
 
-                    //Location: check permission
-/*                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-                        //When permission granted
-                        getLocation();
-
-                    } else {
-                        //When permission denied
-                        ActivityCompat.requestPermissions(getActivity(),
-                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
-                        System.out.println("*** no permission for location -> save fish without coordinates or weather data ***");
-
-                        //save fish to list (REMEMBER FILENAME CHANGE)
-                        Fish fish = new Fish(title, weight, inGrams,length, photoFileName);
-                        fList.add(fish);
-                        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
-
-                    }*/
-
-
+                    // Go try to get location and in case we get a location
+                    // Overwrites the saved fish with a new fish that has location data
                     getLocation();
-                    if(!isLocation) {
-                        Fish fish = new Fish(title, weight, inGrams, length, photoFileName);
-                        fList.add(fish);
-                        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
-                    }
-
-                    /*Fish fish = new Fish(title, weight, inGrams, length, photoFileName);
-                    fList.add(fish);
-                    SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);*/
-
-
                 })
-                // Listener for this is onResume method
+                // Listener for this is in onResume method
                 .setNeutralButton("Add picture", null);
 
         // Return AlertDialog builder.crete and .show() in MainActivity
         return builder.create();
     }
-
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -237,26 +195,25 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         addPicture.setOnClickListener(view1 -> {
 
             // Create a File reference for future access
-            photoFile = getPhotoFileUri(photoFileName);
+            imageFile = getImageFileUri();
 
             // wrap File object into a content provider
             // required for API >= 24
             // See https://guides.codepath.com/android/Sharing-Content-with-Intents#sharing-files-with-api-24-or-higher
-            Uri fileProvider = FileProvider.getUriForFile(requireActivity(), BuildConfig.APPLICATION_ID + ".provider", photoFile);
+            Uri fileProvider = FileProvider.getUriForFile(requireActivity(), BuildConfig.APPLICATION_ID + ".provider", imageFile);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
 
+            // Launch the camera intent // Start camera app
             if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
-                // Start the image capture intent to take photo
                 activityResultLauncher.launch(intent);
             } else {
-                Toast.makeText(requireActivity(), "Couldn't open the camera", Toast.LENGTH_LONG);
-                System.out.println("Couldn't open the camera");
+                Toast.makeText(requireActivity(), "Couldn't open the camera", Toast.LENGTH_SHORT).show();
             }
-
         });
         // Camera END
 
-        // Changes the text depending if user already taken photo
+        // Changes the text of "Add picture"
+        // depending if user already taken photo
         if ( imageView.getDrawable() == null ) {
             addPicture.setText("Add picture");
         } else {
@@ -265,19 +222,39 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
     }
 
     // Disables / Enables the "Add" button
-    public void buttonCanBePressed(boolean active) {
+    public void buttonCanBePressed(boolean b) {
         AlertDialog dialog = (AlertDialog) getDialog();
         assert dialog != null;
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(active);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(b);
+    }
+
+    // Serializes fish and adds it to fList ArrayList
+    // Then serializes the ArrayList to a file
+    private void addFishToFile(Fish fish) {
+        fList.add(fish);
+        SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"FishList", fList);
+    }
+
+    private ArrayList<Fish> getFishArrayFromFile() {
+        //"Pre"Serialize arraylist if empty
+        @SuppressLint("SdCardPath") File f = new File("/data/data/com.example.vko11v3/files/FishList");
+        if(!f.exists() && !f.isDirectory()) {
+            ArrayList<Fish> fList = new ArrayList<>();
+            SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"FishList", fList);
+        }
+
+        //Deserialize existing fish ArrayList from file and return it
+        return SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),"FishList");
     }
 
     // Create a Directory for the photo to be saved at
     @SuppressLint("DefaultLocale")
-    public File getPhotoFileUri(String fileName) {
+    public File getImageFileUri() {
 
-        photoFileName = String.format("%d.jpg", System.currentTimeMillis());
+        // Generate a "random" file name
+        imageFileName = String.format("%d.jpg", System.currentTimeMillis());
 
-        // Get safe storage directory for photos
+        // Get a safe storage directory for photos
         File mediaStorageDir = new File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "FisherKing");
         storageDir = mediaStorageDir.getAbsolutePath();
 
@@ -287,67 +264,61 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         }
 
         // Return the file target for the photo based on filename
-        return new File(mediaStorageDir.getPath() + File.separator + photoFileName);
+        return new File(mediaStorageDir.getPath() + File.separator + imageFileName);
     }
 
 
-    //get location:
+    // Gets the users LastLocation and if successfully gets location
+    // overwrites the saved Fish with one that has location data
     private void getLocation() {
 
+        // Check if has permission to use location
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            latitude = null;
-            longitude = null;
+
+            // No location permission so request permission
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
+
             return;
         }
 
-
+        // Add listener for when the location data is received
+        // if no location data is received this never executes
         fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
             //Initialize location
             Location location = task.getResult();
 
-            //Is able to get location
+            // If successfully retrieved location data
             if (location != null) {
                 try {
 
-                    //Initialize geoCoder
+                    // Initialize geoCoder
                     Geocoder geocoder = new Geocoder(getActivity(),
                             Locale.getDefault());
-                    //Initialize address list
+                    // Initialize address list
                     List<Address> addresses = geocoder.getFromLocation(
                             location.getLatitude(), location.getLongitude(), 1);
 
-                    //Set latitude on TextView
+                    // Set variables
                     latitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
-                    //System.out.println("*** latitude inside addnewfishpopup ***: " + latitude);
-                    //latitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
-
-                    //Set longitude on TextView
                     longitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
-                    //System.out.println("*** longitude inside addnewfishpopup ***: " + longitude);
-                    //longitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
+                    locality = addresses.get(0).getLocality(); // City
 
-                    //Set country name
-                    //countryName.setText(addresses.get(0).getCountryName());
-
-                    //Set locality
-                    //locality.setText(addresses.get(0).getLocality());
-                    locality = addresses.get(0).getLocality();
-
-                    //Set address
-                    //address.setText(addresses.get(0).getAddressLine(0));
-
-                    //get weather:
+                    // Get weather data from coordinates
                     URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
-                    System.out.println("*** URLWeather *** :"+URLWeather);
                     tempCelcius = readJSON(URLWeather);
 
-                    //save fish to list (REMEMBER FILENAME CHANGE)
-                    Fish fish = new Fish(title, weight, inGrams, length, photoFileName, latitude, longitude, tempCelcius, locality); //gets date automatically from Fish - constructor
-                    fList.add(fish);
-                    SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
-                    isLocation = true;
+                    // Overwrites the previously saved fish with one that has the location data
+                    Fish fish = new Fish(title, weight, inGrams, length, imageFileName, latitude, longitude, tempCelcius, locality);
+                    fList = getFishArrayFromFile();
+
+                    // Remove the previously added fish without location data
+                    fList.remove(fList.size() - 1);
+
+                    // Add new fish to file
+                    addFishToFile(fish);
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -356,29 +327,30 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         });
     }
 
-
+    // Reads the JSON file received from Open Weathers api
     public double readJSON (String URLWeather) {
-        System.out.println("*** readJSON metodi ***");
+
+        // Gets the JSON from URL with another method
         String json = getJSON(URLWeather);
-        System.out.println("JSON: "+json);
 
         try {
             JSONObject jsonObject = new JSONObject(json);
+
+            // Get the temp from JSON and convert KELVIN -> C
             double tempKelvin = jsonObject.getJSONObject("main").getDouble("temp");
-            System.out.println("*** temperature in Kelvin: *** "+tempKelvin);
             tempCelcius = tempKelvin - 273.15;
-            System.out.println("*** temperature in Celsius: *** "+tempCelcius);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    return tempCelcius;
+        return tempCelcius;
     }
 
+    // Gets JSON from URL
     public String getJSON (String URLWeather) {
-        System.out.println("*** getJSON metodi ***");
-        String response = null;
 
+        // Returns null if fails to get JSON
+        String response = null;
         try {
             URL url = new URL(URLWeather);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -386,22 +358,15 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
             InputStream in = new BufferedInputStream(conn.getInputStream());
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             StringBuilder sb = new StringBuilder();
-            String line = null;
+            String line;
             while((line = br.readLine()) != null) {
                 sb.append(line).append("\n");
             }
             response = sb.toString();
             in.close();
-
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return response;
     }
-
 }
