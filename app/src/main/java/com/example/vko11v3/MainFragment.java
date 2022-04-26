@@ -204,11 +204,9 @@ public class MainFragment extends Fragment {
 
     }
 
+    // temp method -> can be removed later
+    // connected to "New Fish" button -> empties arraylist and adds 3 "fixed" fishes to it
     private void getFish() {
-        System.out.println("*** New fish (fixed test fish) ***");
-        Fish fish = new Fish();
-        System.out.println(fish.getFish());
-        System.out.println("******");
 
         ArrayList<Fish> fList = new ArrayList<Fish>();
         Fish f1 = new Fish("Särki", 2.2, 3.3, String.valueOf(61.011333), String.valueOf(25.614806));
@@ -222,16 +220,6 @@ public class MainFragment extends Fragment {
         SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
     }
 
-    private void initializeFishFile() {
-        System.out.println("*** Initializing your catch file ***");
-        ArrayList<Fish> fList = new ArrayList<Fish>();
-
-        Fish f1 = new Fish();
-        fList.add(f1);
-        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
-    }
-
-
     private void listFish() {
 
         ArrayList<Fish> fishHistory = new ArrayList<>();
@@ -241,7 +229,6 @@ public class MainFragment extends Fragment {
         System.out.println("*** ALl YOUR CATCHES: ***");
         for (Fish f : fishHistory) {
             System.out.println(f.title + ": " + f.weight + "," + f.latitude + "," + f.longitude + "," + f.tempCelcius + "," + f.locality +"," + f.date);
-            //System.out.println(f.title + ": " + f.weight + "," + f.latitude + "," + f.longitude + "," + f.date2);
         }
     }
 
@@ -253,13 +240,6 @@ public class MainFragment extends Fragment {
 
             Snackbar.make(getView(), "Give permissions **temp**", 3);
 
-            // TODO: Consider calling
-            //  ActivityCompat#requestPermissions
-            //  here to request the missing permissions, and then overriding
-            //  public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            //  to handle the case where the user grants the permission. See the documentation
-            //  for ActivityCompat#requestPermissions for more details.
             return;
         }
         fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
@@ -295,8 +275,6 @@ public class MainFragment extends Fragment {
                         System.out.println("*** URLWeather *** :"+URLWeather);
                         readJSON(URLWeather);
 
-                        //61.008106, 25.618022 (vesijärvi)
-
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -307,15 +285,12 @@ public class MainFragment extends Fragment {
     }
 
     public void readJSON (String URLWeather) {
-        System.out.println("*** readJSON metodi ***");
         String json = getJSON(URLWeather);
         System.out.println("JSON: "+json);
 
         try {
             JSONObject jsonObject = new JSONObject(json);
-            //JSONArray weatherMain = jsonObject.getJSONArray("main");
             double tempKelvin = jsonObject.getJSONObject("main").getDouble("temp");
-            System.out.println("*** temperature in Kelvin: *** "+tempKelvin);
             double tempCelcius = tempKelvin - 273.15;
             System.out.println("*** temperature in Celsius: *** "+tempCelcius);
             temperature.setText(Double.toString(tempCelcius));
@@ -326,7 +301,6 @@ public class MainFragment extends Fragment {
     }
 
     public String getJSON (String URLWeather) {
-        System.out.println("*** getJSON metodi ***");
         String response = null;
 
         try {

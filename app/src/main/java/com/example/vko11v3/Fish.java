@@ -45,10 +45,10 @@ public class Fish implements Serializable {
     String locality;
 
     //TEMP -> dont think these are needed -> unless we cant fix empty file crash issue otherwise
-    String titleWeight;
+    /*String titleWeight;
     String titleLength;
     String titleDate;
-    String titleTempCelcius;
+    String titleTempCelcius;*/
 
 
     /*public Fish(String title, Double weight, Double length, String picture, String latitude, String longitude, Long date) {
@@ -93,7 +93,7 @@ public class Fish implements Serializable {
         this.date = date.format(cal.getTime());
     }
 
-    //temp rakentaja2
+    //temp constructor -> remove later
     public Fish(String title, Double weight, Double length, String latitude, String longitude) {
         this.title = title;
         this.weight = weight;
@@ -102,15 +102,15 @@ public class Fish implements Serializable {
         this.longitude = longitude;
     }
 
-    //temp rakentaja3
-    public Fish() {
-        /*this.title = "Särki";
+    //temp constructor -> remove later
+    /*public Fish() {
+        this.title = "Särki";
         this.weight = 8.2;
         this.length = 4.5;
         this.picture = "https://fi.wikipedia.org/wiki/S%C3%A4rki#/media/Tiedosto:Rutilus_rutilus_Prague_Vltava_3.jpg";
         this.latitude = String.valueOf(61.011333);
         this.longitude = String.valueOf(25.614806);
-        this.date2 = Calendar.getInstance().getTime();*/
+        this.date2 = Calendar.getInstance().getTime();
 
         this.title = "Species";
         this.titleWeight = "Weigth";
@@ -120,7 +120,7 @@ public class Fish implements Serializable {
         this.longitude = "Longitude";
         this.titleDate = "Time";
         this.titleTempCelcius = "Temperature";
-    }
+    }*/
 
 
     public String getTitle() {
@@ -179,7 +179,7 @@ public class Fish implements Serializable {
     }
 
     //getFish method only for test purposes -> remove in final version
-    public String getFish() {
+    /*public String getFish() {
         return
                 "Fish [species=" + title
                         + ", weight=" + weight
@@ -188,76 +188,6 @@ public class Fish implements Serializable {
                         + ",latitude=" + latitude
                         + ",longitude=" + longitude
                         + ",date=" + date + "]";
-    }
+    }*/
 
 }
-/*
-    //location
-
-    // Initialize fusedLocationProviderClient
-    fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity()); //ei pelkkä this, koska ollaan fragmentissa
-
-    //check permission
-    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-            //mainActivity vai MainFragment -> doesnt seem to work
-            //not context: vs. activity -> with either
-            == PackageManager.PERMISSION_GRANTED) {
-        //When permission granted
-        getLocation();
-    } else {
-        //When permission denied
-        ActivityCompat.requestPermissions(getActivity(),
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
-    }
-
-
-    //get location:
-    private void getLocation() {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            //Snackbar.make(getView(), "Give permissions **temp**", 3);
-
-            return;
-        }
-        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                //Initialize location
-                Location location = task.getResult();
-                if (location != null) {
-                    try {
-                        //Initialize geoCoder
-                        Geocoder geocoder = new Geocoder(getActivity(),
-                                Locale.getDefault());
-                        //Initialize address list
-                        List<Address> addresses = geocoder.getFromLocation(
-                                location.getLatitude(), location.getLongitude(), 1);
-                        //Set latitude on TextView
-                        latitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
-                        //Set longitude on TextView
-                        longitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
-                        //Set country name
-                        countryName.setText(addresses.get(0).getCountryName());
-                        //Set locality
-                        locality.setText(addresses.get(0).getLocality());
-                        //Set address
-                        address.setText(addresses.get(0).getAddressLine(0));
-
-                        //get weather:
-                        URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
-                        System.out.println("*** URLWeather *** :"+URLWeather);
-                        readJSON(URLWeather);
-
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-    }
-
-*/
-

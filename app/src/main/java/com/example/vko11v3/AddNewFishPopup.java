@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.activity.result.ActivityResult;
@@ -60,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class AddNewFishPopup extends AppCompatDialogFragment {
 
@@ -97,6 +99,9 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
     String photoFileName = "null";
     // Camera END
 
+    // Location
+    boolean isLocation = false;
+    // Location END
 
     @NonNull
     @Override
@@ -166,11 +171,6 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         length = Double.parseDouble(newFishLength.getText().toString());
                     }
 
-                    //Test: activate these rows to empty the arraylist in FishList file
-                    //fList = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
-                    //fList.clear();
-                    //SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
-
                     //"Pre"Serialize arraylist if empty
                     @SuppressLint("SdCardPath") File f = new File("/data/data/com.example.vko11v3/files/FishList");
                     if(!f.exists() && !f.isDirectory()) {
@@ -182,7 +182,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                     fList = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
 
                     //Location: check permission
-                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+/*                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
                         //When permission granted
                         getLocation();
@@ -191,17 +191,28 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         //When permission denied
                         ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
-                        System.out.println("*** no permission for location -> save wish without coordinates or weather data ***");
+                        System.out.println("*** no permission for location -> save fish without coordinates or weather data ***");
 
                         //save fish to list (REMEMBER FILENAME CHANGE)
                         Fish fish = new Fish(title, weight, inGrams,length, photoFileName);
                         fList.add(fish);
                         SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
 
+                    }*/
+
+
+                    getLocation();
+                    if(!isLocation) {
+                        Fish fish = new Fish(title, weight, inGrams, length, photoFileName);
+                        fList.add(fish);
+                        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
                     }
+
                     /*Fish fish = new Fish(title, weight, inGrams, length, photoFileName);
                     fList.add(fish);
                     SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);*/
+
+
                 })
                 // Listener for this is onResume method
                 .setNeutralButton("Add picture", null);
@@ -234,11 +245,14 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
             Uri fileProvider = FileProvider.getUriForFile(requireActivity(), BuildConfig.APPLICATION_ID + ".provider", photoFile);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
 
-            // Launch the camera intent // Start camera app
             if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
                 // Start the image capture intent to take photo
                 activityResultLauncher.launch(intent);
+            } else {
+                Toast.makeText(requireActivity(), "Couldn't open the camera", Toast.LENGTH_LONG);
+                System.out.println("Couldn't open the camera");
             }
+
         });
         // Camera END
 
@@ -279,65 +293,64 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
 
     //get location:
     private void getLocation() {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             latitude = null;
             longitude = null;
-            //Snackbar.make(getView(), "Give permissions **temp**", 3);
-
             return;
         }
-        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                //Initialize location
-                Location location = task.getResult();
-                if (location != null) {
-                    try {
-
-                        //Initialize geoCoder
-                        Geocoder geocoder = new Geocoder(getActivity(),
-                                Locale.getDefault());
-                        //Initialize address list
-                        List<Address> addresses = geocoder.getFromLocation(
-                                location.getLatitude(), location.getLongitude(), 1);
-
-                        //Set latitude on TextView
-                        latitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
-                        //System.out.println("*** latitude inside addnewfishpopup ***: " + latitude);
-                        //latitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
-
-                        //Set longitude on TextView
-                        longitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
-                        //System.out.println("*** longitude inside addnewfishpopup ***: " + longitude);
-                        //longitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
-
-                        //Set country name
-                        //countryName.setText(addresses.get(0).getCountryName());
-
-                        //Set locality
-                        //locality.setText(addresses.get(0).getLocality());
-                        locality = addresses.get(0).getLocality();
-
-                        //Set address
-                        //address.setText(addresses.get(0).getAddressLine(0));
-
-                        //get weather:
-                        URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
-                        System.out.println("*** URLWeather *** :"+URLWeather);
-                        tempCelcius = readJSON(URLWeather);
-
-                        //save fish to list (REMEMBER FILENAME CHANGE)
-                        Fish fish = new Fish(title, weight, inGrams, length, photoFileName, latitude, longitude, tempCelcius, locality); //gets date automatically from Fish - constructor
-                        fList.add(fish);
-                        SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
 
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+            //Initialize location
+            Location location = task.getResult();
+
+            //Is able to get location
+            if (location != null) {
+                try {
+
+                    //Initialize geoCoder
+                    Geocoder geocoder = new Geocoder(getActivity(),
+                            Locale.getDefault());
+                    //Initialize address list
+                    List<Address> addresses = geocoder.getFromLocation(
+                            location.getLatitude(), location.getLongitude(), 1);
+
+                    //Set latitude on TextView
+                    latitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
+                    //System.out.println("*** latitude inside addnewfishpopup ***: " + latitude);
+                    //latitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
+
+                    //Set longitude on TextView
+                    longitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
+                    //System.out.println("*** longitude inside addnewfishpopup ***: " + longitude);
+                    //longitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
+
+                    //Set country name
+                    //countryName.setText(addresses.get(0).getCountryName());
+
+                    //Set locality
+                    //locality.setText(addresses.get(0).getLocality());
+                    locality = addresses.get(0).getLocality();
+
+                    //Set address
+                    //address.setText(addresses.get(0).getAddressLine(0));
+
+                    //get weather:
+                    URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
+                    System.out.println("*** URLWeather *** :"+URLWeather);
+                    tempCelcius = readJSON(URLWeather);
+
+                    //save fish to list (REMEMBER FILENAME CHANGE)
+                    Fish fish = new Fish(title, weight, inGrams, length, photoFileName, latitude, longitude, tempCelcius, locality); //gets date automatically from Fish - constructor
+                    fList.add(fish);
+                    SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);
+                    isLocation = true;
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
