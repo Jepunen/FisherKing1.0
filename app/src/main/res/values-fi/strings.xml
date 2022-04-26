@@ -1,2 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+
+<resources>
+    <string name="app_name">Fisher King</string>
+
+    <string name="open">Avaa</string>
+    <string name="close">Sulje</string>
+    <string name="back">Takaisin</string>
+
+    <!-- LOGIN / REGISTER PAGE TEXT -->
+    <string name="username">Käyttäjätunnus</string>
+    <string name="password">Salasana</string>
+    <string name="email">Sähköposti</string>
+    <string name="remember_me">Muista minut</string>
+    <string name="login">Kirjaudu</string>
+    <string name="login_fingerprint">Kirjaudu sormenjälkitunnistuksella</string>
+    <string name="register">Rekisteröidy</string>
+    <string name="no_account">Etkö ole rekisteröitynyt?</string>
+    <string name="back_to_login">Takaisin kirjautumiseen</string>
+    <string name="wrong_credentials">Väärä käyttäjätunnus tai salasana</string>
+    <string name="empty_field">Kaikki tiedot ovat pakollisia</string>
+    <string name="password_requirements">
+        Password requirements\n
+        \t\u2022 12-20 characters\n
+        \t\u2022 a lower case character\n
+        \t\u2022 an upper case character\n
+        \t\u2022 a number\n
+        \t\u2022 a special character\n
+    </string>
+    <!-- LOGIN / REGISTER PAGE TEXT - END -->
+
+    <!-- NAVIGATION MENU -->
+    <string name="header_text">Kuka olet?</string>
+    <string name="home">Koti</string>
+    <string name="menu_item_1">Valikko</string>
+    <string name="menu_catches">Kaikki saaliit</string>
+    <string name="pages">Sivut</string>
+    <string name="settings">Asetukset</string>
+    <string name="night_mode">Yö-tila</string>
+    <string name="logout">Kirjaudu ulos</string>
+    <!-- NAVIGATION MENU - END -->
+
+    <!-- USERNAME POPUP - START -->
+    <string name="add_username">Lisää käyttäjätunnus sormenjälkitunnistukseen</string>
+    <string name="add">Lisää</string>
+    <!-- USERNAME POPUP - END -->
+
+    <!-- NEW FISH POPUP -->
+    <string name="fish_name">Laji</string>
+    <string name="fish_weight">Paino</string>
+    <string name="grams_kg">G / KG</string>
+    <string name="kg">Kg</string>
+    <string name="grams">G</string>
+    <string name="fish_length">Pituus</string>
+    <string name="retake_picture">Ota uusi kuva</string>
+    <string name="image_of_fish">Kuva saaliista</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- NEW FISH POPUP - END -->
+
+</resources>

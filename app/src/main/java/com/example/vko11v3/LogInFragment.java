@@ -52,7 +52,7 @@ public class LogInFragment extends Fragment {
 
 
         // -- Get screen elements by ID --
-        message  = view. findViewById(R.id.loginMessage);
+        message  = view.findViewById(R.id.loginMessage);
         EditText username = view.findViewById(R.id.loginUsername);
         EditText password = view.findViewById(R.id.resetEmail);
         @SuppressLint("UseSwitchCompatOrMaterialCode")
