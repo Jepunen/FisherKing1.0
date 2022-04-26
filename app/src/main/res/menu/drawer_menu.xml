@@ -10,10 +10,11 @@
             <item
                 android:id="@+id/navigationSettings"
                 android:icon="@drawable/ic_baseline_settings_24"
-                android:title="@string/menu_item_1" />
+                android:title="@string/menu_item_1"
+                android:visible="false" />
             <item
                 android:id="@+id/navigationCatches"
-                android:icon="@drawable/ic_baseline_settings_24"
+                android:icon="@drawable/fish_icon"
                 android:title="@string/menu_catches" />
         </menu>
     </item>
@@ -28,6 +29,7 @@
                 app:showAsAction="ifRoom" />
             <item
                 android:id="@+id/navigationHomeStart"
+                android:icon="@drawable/ic_baseline_home_24"
                 android:title="@string/start_from_home_page"
                 app:actionLayout="@layout/switch_item"
                 app:showAsAction="ifRoom" />
