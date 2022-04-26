@@ -16,8 +16,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
-import java.util.Objects;
-
 public class AddUsernamePopup extends AppCompatDialogFragment {
 
     private EditText username;
@@ -30,20 +28,16 @@ public class AddUsernamePopup extends AppCompatDialogFragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.fragment_add_username_popup, null);
 
+        // Get elements by ID
         username = (EditText) view.findViewById(R.id.usernamePopupEditText);
 
-        AlertDialog dialog = (AlertDialog) getDialog();
-
+        // Title text changed listener
         username.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
             public void afterTextChanged(Editable editable) {
@@ -55,12 +49,12 @@ public class AddUsernamePopup extends AppCompatDialogFragment {
                 .setTitle("Add username")
                 .setPositiveButton("Add username", (dialogInterface, i) -> {
 
+                    // Adds username for biometric login and sets user as current user
                     SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
                     String user = username.getText().toString();
                     sharedPref.edit().putString("biometric_user", user).apply();
                     sharedPref.edit().putString("current_user", user).apply();
                     ((MainInterface) requireActivity()).setNavHeaderText();
-
                 });
         return builder.create();
     }
@@ -68,14 +62,16 @@ public class AddUsernamePopup extends AppCompatDialogFragment {
     @Override
     public void onResume() {
         super.onResume();
-        // disable positive button by default
         AlertDialog dialog = (AlertDialog) getDialog();
         assert dialog != null;
+        // Dialog cannot be exited without giving a username
         dialog.setCanceledOnTouchOutside(false);
-
+        dialog.setCancelable(false);
+        // disable "Add" button by default
         buttonCanBePressed(false);
     }
 
+    // Sets the "Add" button active / disabled
     public void buttonCanBePressed(boolean active) {
         AlertDialog dialog = (AlertDialog) getDialog();
         assert dialog != null;

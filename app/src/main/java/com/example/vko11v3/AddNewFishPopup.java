@@ -42,7 +42,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -108,30 +107,28 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.fragment_add_new_fish, null);
 
+        // Find screen elements by ID
         newFishName   = (EditText) view.findViewById(R.id.newFishName);
         newFishWeight = (EditText) view.findViewById(R.id.newFishWeight);
         newFishLength = (EditText) view.findViewById(R.id.newFishLength);
         imageView     = (ImageView) view.findViewById(R.id.newFishImageView);
         toggle        = (ToggleButton) view.findViewById(R.id.toggleButton);
 
-        AlertDialog dialog = (AlertDialog) getDialog();
-
         // Camera
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-
-                    // Image view on popup
-                    Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-                    imageView.setImageBitmap(bitmap);
-                    imageView.setRotation(90);
-                    imageView.setVisibility(View.VISIBLE);
-                }
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            // Executes when a photo is taken and "OK" is pressed
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                // Photo saved here to the location that was allocated
+                // Image view on popup
+                Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+                imageView.setImageBitmap(bitmap);
+                imageView.setRotation(90);
+                imageView.setVisibility(View.VISIBLE);
             }
         });
         // Camera END
 
+        // Text change listener for title
         newFishName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
@@ -144,6 +141,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                 buttonCanBePressed(!TextUtils.isEmpty(newFishName.getText().toString()));
             }
         });
+        // Listener for KG / GRAMS toggle button
         toggle.setOnCheckedChangeListener((compoundButton, b) -> {
             inGrams = b;
         });
@@ -153,19 +151,20 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
 
         builder.setView(view)
                 .setTitle("Add new fish")
+                // Creates a new fish object and saves it to an array
                 .setPositiveButton("Add", (dialogInterface, i) -> {
 
                     title = newFishName.getText().toString();
                     weight = 0.0;
                     length = 0.0;
 
+                    // If weight / length != 0, set values
                     if ( !TextUtils.isEmpty(newFishWeight.getText().toString()) ) {
                         weight = Double.parseDouble(newFishWeight.getText().toString());
                     }
                     if ( !TextUtils.isEmpty(newFishLength.getText().toString()) ) {
                         length = Double.parseDouble(newFishLength.getText().toString());
                     }
-                    Date date = new Date();
 
                     //Test: activate these rows to empty the arraylist in FishList file
                     //fList = SerializeFish.instance.deSerializeData(getActivity().getApplicationContext(),"FishList");
@@ -204,8 +203,10 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                     fList.add(fish);
                     SerializeFish.instance.serializeData(getActivity().getApplicationContext(),"FishList", fList);*/
                 })
+                // Listener for this is onResume method
                 .setNeutralButton("Add picture", null);
 
+        // Return AlertDialog builder.crete and .show() in MainActivity
         return builder.create();
     }
 
@@ -233,8 +234,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
             Uri fileProvider = FileProvider.getUriForFile(requireActivity(), BuildConfig.APPLICATION_ID + ".provider", photoFile);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
 
-            // If you call startActivityForResult() using an intent that no app can handle, your app will crash.
-            // So as long as the result is not null, it's safe to use the intent.
+            // Launch the camera intent // Start camera app
             if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
                 // Start the image capture intent to take photo
                 activityResultLauncher.launch(intent);
@@ -242,6 +242,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         });
         // Camera END
 
+        // Changes the text depending if user already taken photo
         if ( imageView.getDrawable() == null ) {
             addPicture.setText("Add picture");
         } else {
@@ -257,7 +258,6 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
     }
 
     // Create a Directory for the photo to be saved at
-    // + save the photo there when taken
     @SuppressLint("DefaultLocale")
     public File getPhotoFileUri(String fileName) {
 
