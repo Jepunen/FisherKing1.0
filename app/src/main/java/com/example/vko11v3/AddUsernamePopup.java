@@ -51,6 +51,8 @@ public class AddUsernamePopup extends AppCompatDialogFragment {
                     SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
                     String user = username.getText().toString();
                     sharedPref.edit().putString("biometric_user", user).apply();
+                    sharedPref.edit().putString("current_user", user).apply();
+                    sharedPref.edit().putString("logged_in_as", user).apply();
                     ((MainInterface) requireActivity()).setNavHeaderText();
                 });
         return builder.create();

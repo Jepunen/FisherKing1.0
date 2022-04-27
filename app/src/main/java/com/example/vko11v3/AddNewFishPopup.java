@@ -269,7 +269,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
 
     // Gets the users LastLocation and if successfully gets location
     // overwrites the saved Fish with one that has location data
-    private void getLocation() {
+    private void getLocation() throws NullPointerException{
 
         // Check if has permission to use location
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
