@@ -59,6 +59,23 @@
     <string name="picture_of_a_fish">Picture of a fish</string>
     <string name="caught_fish">Caught fish</string>
     <string name="navigationmaps">Maps</string>
+    <string name="c">C</string>
+    <string name="sunset">Sunset</string>
+    <string name="wind_speed">Wind speed</string>
+    <string name="_0">0</string>
+    <string name="feels_like_0_c">Feels like 0°C</string>
+    <string name="morning_0_c">Morning 0°C</string>
+    <string name="evening_0_c">Evening 0°C</string>
+    <string name="night_0_c">Night 0°C</string>
+    <string name="_0_m_s">0 m/s</string>
+    <string name="_00_00">00:00</string>
+    <string name="no_data">No Data</string>
+    <string name="goback">GoBack</string>
+    <string name="gonext">GoNext</string>
+    <string name="enable_allow_location">Enable / allow location</string>
+    <string name="weathericon">WeatherIcon</string>
+    <string name="sunrise">Sunrise</string>
+    <string name="go_to_latest_catches">Go to latest catches</string>
     <!-- NEW FISH POPUP - END -->
 
 </resources>

@@ -253,7 +253,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
             SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fList);
         }
 
-        //Deserialize existing fish ArrayList from file and return it
+        // Deserialize existing fish ArrayList from file and return it
         return SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),user + "_FishList");
     }
 
@@ -328,11 +328,8 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         // Add new fish to file
                         addFishToFile(fish);
 
-                    } catch (IOException e) {
+                    } catch (IOException | NullPointerException e) {
                         e.printStackTrace();
-                    } catch (NullPointerException e) {
-                        Toast.makeText(requireContext(), "Error while fetching location data", Toast.LENGTH_LONG).show();
-                        System.out.println("----- Error while getting location -----");
                     }
                 }
             });
