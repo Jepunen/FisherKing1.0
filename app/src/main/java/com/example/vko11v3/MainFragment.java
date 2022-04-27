@@ -37,9 +37,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class MainFragment extends Fragment {
 
@@ -282,18 +285,66 @@ public class MainFragment extends Fragment {
             JSONObject obj = new JSONObject(json);
             JSONArray arr = obj.getJSONArray("daily");
             for( int i = 0; i < arr.length(); i++) {
-                Double dt = arr.getJSONObject(i).getDouble("dt");
 
+                //forecast date
+                long dt = arr.getJSONObject(i).getLong("dt");
+                Date date = new Date(dt*1000L);
+                SimpleDateFormat jdf = new SimpleDateFormat("yyyy-MM-dd");
+                jdf.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+                String java_date = jdf.format(date);
+                //https://www.w3resource.com/java-exercises/datetime/java-datetime-exercise-36.php
 
-
-
+                //temperature
                 Double dayTemp = arr.getJSONObject(i).getJSONObject("temp").getDouble("day");
+                Double dayTempC = Math.round((dayTemp - 273.15)*10)/10.0; // converts temp Kelvin to C with 1 decimal point
+                Double morningTemp = arr.getJSONObject(i).getJSONObject("temp").getDouble("morn");
+                Double morningTempC = Math.round((morningTemp - 273.15)*10)/10.0;
+                Double eveTemp = arr.getJSONObject(i).getJSONObject("temp").getDouble("eve");
+                Double eveTempC = Math.round((eveTemp - 273.15)*10)/10.0;
+                Double nightTemp = arr.getJSONObject(i).getJSONObject("temp").getDouble("night");
+                Double nightTempC = Math.round((nightTemp - 273.15)*10)/10.0;
+
+                //temperature feels like
+                Double dayTemp_feel = arr.getJSONObject(i).getJSONObject("feels_like").getDouble("day");
+                Double dayTempC_feel = Math.round((dayTemp_feel  - 273.15)*10)/10.0; // converts temp Kelvin to C with 1 decimal point
+
+                //weather description
                 String description = arr.getJSONObject(i).getJSONArray("weather").getJSONObject(0).getString("description");
 
-                System.out.println("\n*** forecast for date (UNIX format): "+dt+" ***");
-                System.out.println("*** day temperature: "+dayTemp+", description: "+description+" ***");
+                //wind speed
+                Double wind_speed = arr.getJSONObject(i).getDouble("wind_speed");
+
+                //sunrise
+                long sunRise = arr.getJSONObject(i).getLong("sunrise");
+                Date sunRiseDate = new Date(sunRise*1000L);
+                SimpleDateFormat jdf_sunRise = new SimpleDateFormat("HH:mm");
+                jdf_sunRise.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+                String java_sunRise = jdf_sunRise.format(sunRiseDate);
+
+                //sunset
+                long sunSet = arr.getJSONObject(i).getLong("sunset");
+                Date sunSetDate = new Date(sunSet*1000L);
+                SimpleDateFormat jdf_sunSet = new SimpleDateFormat("HH:mm");
+                jdf_sunSet.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+                String java_sunSet = jdf_sunSet.format(sunSetDate);
+
+                //prints to console - TEMP
+                System.out.println("\n*** forecast for date: "+java_date+" ***");
+                System.out.println("*** morning temperature: "+morningTempC+" ***");
+                System.out.println("*** day temperature: "+dayTempC+" ***");
+                System.out.println("*** evening temperature: "+eveTempC+" ***");
+                System.out.println("*** night temperature: "+nightTempC+" ***");
+                System.out.println("*** day temperature feels like:"+dayTempC_feel+" ***");
+                System.out.println("*** description: "+description+" ***");
+                System.out.println("*** wind speed: "+wind_speed+" ***");
+                System.out.println("*** sun rise: "+java_sunRise+" ***");
+                System.out.println("*** sun set: "+java_sunSet+" ***");
             }
 
+            //tuulen nopeus
+            //temp. how it feels
+            //koko päivän temp (morning noon night)
+            //sunset / sunrise
 
         } catch (JSONException e) {
             e.printStackTrace();
