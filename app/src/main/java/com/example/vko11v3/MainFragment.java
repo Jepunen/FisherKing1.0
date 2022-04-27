@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -59,6 +60,9 @@ public class MainFragment extends Fragment {
     Button btLocation;
     TextView latitude, longitude, countryName, locality, address;
     FusedLocationProviderClient fusedLocationProviderClient;
+    String location_latitude;
+    String location_longitude;
+    String location_locality;
 
     //getFish variables TEMP
     Button btFish;
@@ -67,7 +71,8 @@ public class MainFragment extends Fragment {
     //weather forecast
     String URLWeatherForecast;
     final String WEATHER_URL_FORECAST = "https://api.openweathermap.org/data/2.5/onecall";
-    boolean isLocation = false;
+
+
 
     @Nullable
     @Override
@@ -114,12 +119,13 @@ public class MainFragment extends Fragment {
 
         // Initialize fusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+
         btLocation.setOnClickListener(view1 -> {
             // Check permission
             if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 // If permission to get location
-                getLocation();
+                getLocationForecast();
             } else {
                 // Not permission to get location
                 ActivityCompat.requestPermissions(requireActivity(),
@@ -133,10 +139,8 @@ public class MainFragment extends Fragment {
 
         // "Get temperature" button listener
         btTemperature.setOnClickListener(view13 -> {
-            //readJSON(URLWeather);
-            System.out.println("*** test - Weather forecast button pressed ***");
-            readJSONForecast();
-
+            System.out.println("*** Weather forecast button pressed ***");
+            getLocationForecast();
         });
 
         // Get Fish button listener
@@ -176,57 +180,66 @@ public class MainFragment extends Fragment {
         }
     }
 
-    // Get location
-    private void getLocation() {
-        // Check if permission to get location
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+    // Gets the users LastLocation and if successfully gets location
+    // overwrites the saved Fish with one that has location data
+    private void getLocationForecast() throws NullPointerException{
 
-            // No location permission so request permission
-            ActivityCompat.requestPermissions(requireActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
-            return;
-        }
+        try {
+            // Check if has permission to use location
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-        // Add listener for when the location data is received
-        // if no location data is received this never executes
-        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
-            //Initialize location
-            Location location = task.getResult();
-            if (location != null) {
-                try {
-                    //Initialize geoCoder
-                    Geocoder geocoder = new Geocoder(getActivity(),
-                            Locale.getDefault());
-                    //Initialize address list
-                    List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                    //List<Address> addresses = geocoder.getFromLocation(61.008106, 25.618022, 1);
-
-                    //Set latitude on TextView
-                    latitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
-                    //latitude.setText(Html.fromHtml(String.valueOf(61.008106)));
-                    //Set longitude on TextView
-                    longitude.setText(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
-                    //longitude.setText(Html.fromHtml(String.valueOf(25.618022)));
-                    //Set country name
-                    countryName.setText(addresses.get(0).getCountryName());
-                    //Set locality
-                    locality.setText(addresses.get(0).getLocality());
-                    //Set address
-                    address.setText(addresses.get(0).getAddressLine(0));
-                    // -> Check "lake" if you have the time
-
-                    //get weather:
-                    URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
-                    System.out.println("*** URLWeather *** :"+URLWeather);
-                    readJSON(URLWeather);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                // No location permission so request permission
+                ActivityCompat.requestPermissions(requireActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
+                return;
             }
-        });
+
+            // Add listener for when the location data is received
+            // if no location data is received this never executes
+            fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+                //Initialize location
+                Location location = task.getResult();
+
+                // If successfully retrieved location data
+                if (location != null) {
+                    try {
+                        // Initialize geoCoder
+                        Geocoder geocoder = new Geocoder(getActivity(),
+                                Locale.getDefault());
+                        // Initialize address list
+                        List<Address> addresses = geocoder.getFromLocation(
+                                location.getLatitude(), location.getLongitude(), 1);
+
+                        // Set variables
+                        location_latitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
+                        location_longitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
+                        location_locality = addresses.get(0).getLocality(); // City
+
+                        // Get current weather data from coordinates
+                        URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
+
+                        // Get weather forecast based on coordinates
+                        URLWeatherForecast = WEATHER_URL_FORECAST + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&exclude=hourly,alerts,minutely&appid="+APP_ID;
+                        System.out.println("*** Getting 8 day weather forecast for location: "+location_locality);
+                        readJSONForecast(URLWeatherForecast);
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (NullPointerException e) {
+                        Toast.makeText(requireContext(), "Error while fetching location data", Toast.LENGTH_LONG).show();
+                        System.out.println("----- Error while getting location -----");
+                    }
+                }
+            });
+        } catch (NullPointerException exception) {
+            Toast.makeText(requireContext(), "Error while fetching location data", Toast.LENGTH_LONG).show();
+            System.out.println("----- Error while getting location -----");
+        } catch (IndexOutOfBoundsException e) {
+            Toast.makeText(requireContext(), "Error while saving new fish", Toast.LENGTH_LONG).show();
+            System.out.println("----- Error with file while getting location -----");
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -273,9 +286,9 @@ public class MainFragment extends Fragment {
     //Weather forecast
     @SuppressLint("SetTextI18n")
     //public void readJSONForecast (String URLWeatherForecast) {
-    public void readJSONForecast () {
+    public void readJSONForecast (String URLWeatherForecast) {
         //
-        String json = getJSONForecast();
+        String json = getJSONForecast(URLWeatherForecast);
         //System.out.println("JSON: "+json);
         //https://devqa.io/how-to-parse-json-in-java/
         try {
@@ -295,24 +308,24 @@ public class MainFragment extends Fragment {
                 //https://www.w3resource.com/java-exercises/datetime/java-datetime-exercise-36.php
 
                 //temperature
-                Double dayTemp = arr.getJSONObject(i).getJSONObject("temp").getDouble("day");
-                Double dayTempC = Math.round((dayTemp - 273.15)*10)/10.0; // converts temp Kelvin to C with 1 decimal point
-                Double morningTemp = arr.getJSONObject(i).getJSONObject("temp").getDouble("morn");
-                Double morningTempC = Math.round((morningTemp - 273.15)*10)/10.0;
-                Double eveTemp = arr.getJSONObject(i).getJSONObject("temp").getDouble("eve");
-                Double eveTempC = Math.round((eveTemp - 273.15)*10)/10.0;
-                Double nightTemp = arr.getJSONObject(i).getJSONObject("temp").getDouble("night");
-                Double nightTempC = Math.round((nightTemp - 273.15)*10)/10.0;
+                double dayTemp = arr.getJSONObject(i).getJSONObject("temp").getDouble("day");
+                double dayTempC = Math.round((dayTemp - 273.15)*10)/10.0; // converts temp Kelvin to C with 1 decimal point
+                double morningTemp = arr.getJSONObject(i).getJSONObject("temp").getDouble("morn");
+                double morningTempC = Math.round((morningTemp - 273.15)*10)/10.0;
+                double eveTemp = arr.getJSONObject(i).getJSONObject("temp").getDouble("eve");
+                double eveTempC = Math.round((eveTemp - 273.15)*10)/10.0;
+                double nightTemp = arr.getJSONObject(i).getJSONObject("temp").getDouble("night");
+                double nightTempC = Math.round((nightTemp - 273.15)*10)/10.0;
 
                 //temperature feels like
-                Double dayTemp_feel = arr.getJSONObject(i).getJSONObject("feels_like").getDouble("day");
-                Double dayTempC_feel = Math.round((dayTemp_feel  - 273.15)*10)/10.0; // converts temp Kelvin to C with 1 decimal point
+                double dayTemp_feel = arr.getJSONObject(i).getJSONObject("feels_like").getDouble("day");
+                double dayTempC_feel = Math.round((dayTemp_feel  - 273.15)*10)/10.0; // converts temp Kelvin to C with 1 decimal point
 
                 //weather description
                 String description = arr.getJSONObject(i).getJSONArray("weather").getJSONObject(0).getString("description");
 
                 //wind speed
-                Double wind_speed = arr.getJSONObject(i).getDouble("wind_speed");
+                double wind_speed = arr.getJSONObject(i).getDouble("wind_speed");
 
                 //sunrise
                 long sunRise = arr.getJSONObject(i).getLong("sunrise");
@@ -341,11 +354,6 @@ public class MainFragment extends Fragment {
                 System.out.println("*** sun set: "+java_sunSet+" ***");
             }
 
-            //tuulen nopeus
-            //temp. how it feels
-            //koko päivän temp (morning noon night)
-            //sunset / sunrise
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -353,12 +361,12 @@ public class MainFragment extends Fragment {
 
     //Weather forecast
     //public String getJSONForecast (String URLWeatherForecast) {
-    public String getJSONForecast () {
+    public String getJSONForecast (String URLWeatherForecast) {
         String response = null;
 
         try {
-            URL url = new URL("https://api.openweathermap.org/data/2.5/onecall?lat=60.984752099999994&lon=25.657131500000002&exclude=hourly,alerts,minutely&appid=8083d74fdf91756ac7b6cba38cd2b8e9");
-            //URL url = new URL(URLWeather);
+            //URL url = new URL("https://api.openweathermap.org/data/2.5/onecall?lat=60.984752099999994&lon=25.657131500000002&exclude=hourly,alerts,minutely&appid=8083d74fdf91756ac7b6cba38cd2b8e9");
+            URL url = new URL(URLWeatherForecast);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
