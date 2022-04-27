@@ -60,6 +60,8 @@ public class MainFragment extends Fragment {
     Button btLocation;
     TextView latitude, longitude, countryName, locality, address;
     FusedLocationProviderClient fusedLocationProviderClient;
+    double location_latitude_value;
+    double location_longitude_value;
     String location_latitude;
     String location_longitude;
     String location_locality;
@@ -99,7 +101,7 @@ public class MainFragment extends Fragment {
         btTemperature = view.findViewById(R.id.btTemperature);
 
         //get location elements:
-        btLocation = view.findViewById(R.id.btLocation);
+        //btLocation = view.findViewById(R.id.btLocation);
         latitude = view.findViewById(R.id.latitude);
         longitude = view.findViewById(R.id.longitude);
         countryName = view.findViewById(R.id.country);
@@ -120,7 +122,8 @@ public class MainFragment extends Fragment {
         // Initialize fusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
-        btLocation.setOnClickListener(view1 -> {
+        //Location button deleted from XML -> unnecessary (weather forecast has all functionality)
+        /*btLocation.setOnClickListener(view1 -> {
             // Check permission
             if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
@@ -131,7 +134,7 @@ public class MainFragment extends Fragment {
                 ActivityCompat.requestPermissions(requireActivity(),
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
             }
-        });
+        });*/
 
         // Floating "+" button listener
         FloatingActionButton addCatch = view.findViewById(R.id.floatingAddCatch);
@@ -182,6 +185,7 @@ public class MainFragment extends Fragment {
 
     // Gets the users LastLocation and if successfully gets location
     // overwrites the saved Fish with one that has location data
+    @SuppressLint("SetTextI18n")
     private void getLocationForecast() throws NullPointerException{
 
         try {
@@ -213,12 +217,24 @@ public class MainFragment extends Fragment {
                                 location.getLatitude(), location.getLongitude(), 1);
 
                         // Set variables
-                        location_latitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
-                        location_longitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
+                        location_latitude_value = addresses.get(0).getLatitude();
+                        location_longitude_value = addresses.get(0).getLongitude();
+                        location_latitude = String.valueOf(Html.fromHtml(String.valueOf(location_latitude_value)));
+                        location_longitude = String.valueOf(Html.fromHtml(String.valueOf(location_longitude_value)));
                         location_locality = addresses.get(0).getLocality(); // City
 
-                        // Get current weather data from coordinates
-                        URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
+                        // Set current weather and location info
+                        URLWeather = WEATHER_URL + "?lat=" +location_latitude_value+"&lon="+location_longitude_value+"&appid="+APP_ID;
+                        readJSON(URLWeather);
+                        locality.setText(location_locality);
+                        countryName.setText(addresses.get(0).getCountryName());
+                        double location_lat_value_rounded = (Math.round(location_latitude_value*1000.0)/1000.0);
+                        double location_long_value_rounded = (Math.round(location_longitude_value*1000.0)/1000.0);
+                        System.out.println("*** location lat rounded: "+location_lat_value_rounded);
+                        latitude.setText("Your lat.coordinate: "+location_lat_value_rounded);
+                        longitude.setText("Your long.coordinate: "+location_long_value_rounded);
+                        address.setText(addresses.get(0).getAddressLine(0));
+
 
                         // Get weather forecast based on coordinates
                         URLWeatherForecast = WEATHER_URL_FORECAST + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&exclude=hourly,alerts,minutely&appid="+APP_ID;
@@ -244,43 +260,19 @@ public class MainFragment extends Fragment {
 
     @SuppressLint("SetTextI18n")
     public void readJSON (String URLWeather) {
-        String json = getJSON(URLWeather);
+        String json = getJSONForecast(URLWeather);
         System.out.println("JSON: "+json);
 
         try {
             JSONObject jsonObject = new JSONObject(json);
             double tempKelvin = jsonObject.getJSONObject("main").getDouble("temp");
-            double tempCelcius = tempKelvin - 273.15;
+            double tempCelcius = Math.round((tempKelvin - 273.15)*10)/10.0; // converts temp Kelvin to C with 1 decimal point
             System.out.println("*** temperature in Celsius: *** "+tempCelcius);
-            temperature.setText(Double.toString(tempCelcius));
+            temperature.setText("Current temperature: "+Double.toString(tempCelcius)+" C");
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    public String getJSON (String URLWeather) {
-        String response = null;
-
-        try {
-            //URL url = new URL("https://api.openweathermap.org/data/2.5/weather?lat=60.982927&lon=25.660680&appid=8083d74fdf91756ac7b6cba38cd2b8e9");
-            URL url = new URL(URLWeather);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            InputStream in = new BufferedInputStream(conn.getInputStream());
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while((line = br.readLine()) != null) {
-                sb.append(line).append("\n");
-            }
-            response = sb.toString();
-            in.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return response;
     }
 
     //Weather forecast
