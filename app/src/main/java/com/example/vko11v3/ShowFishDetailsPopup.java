@@ -3,7 +3,9 @@ package com.example.vko11v3;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -42,6 +44,7 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
     int position;
     boolean isChecked;
     boolean deleteOldImage = false;
+    String user;
 
     ArrayList<Fish> fList;
 
@@ -69,6 +72,10 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
 
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.fragment_fish_details, null);
+
+        // Get current user
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+        user = sharedPref.getString("current_user", "");
 
         // Get image Dir
         File mediaStorageDir = new File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "FisherKing");
@@ -160,7 +167,7 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
 
                     // Reverse the list for recyclerView
                     Collections.reverse(fList);
-                    SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"FishList", fList);
+                    SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fList);
 
                     // Refresh recyclerView
                     Fragment catches = new Catches();
@@ -199,7 +206,7 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
                 fList.remove(position);
                 // Reverse list for recycler view
                 Collections.reverse(fList);
-                SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"FishList", fList);
+                SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fList);
 
                 dismiss();
 
@@ -242,7 +249,7 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
     }
 
     private ArrayList<Fish> getfList() {
-        fList = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),"FishList");
+        fList = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),user + "_FishList");
         // Undo the reversing that was done in Catches
         Collections.reverse(fList);
         return fList;

@@ -4,7 +4,9 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -54,6 +56,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class AddNewFishPopup extends AppCompatDialogFragment {
 
@@ -149,7 +152,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                 .setPositiveButton("Add", (dialogInterface, i) -> {
 
                     // Title cannot be empty, so set text
-                    // (see ~130 newFishName listener and ~190 buttonCanBePressed)
+                    // (see buttonCanBePressed())
                     title = newFishName.getText().toString();
                     weight = 0.0;
                     length = 0.0;
@@ -232,19 +235,27 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
     // Then serializes the ArrayList to a file
     private void addFishToFile(Fish fish) {
         fList.add(fish);
-        SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"FishList", fList);
+        // Get current user
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+        String user = sharedPref.getString("current_user", "");
+        SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fList);
     }
 
     private ArrayList<Fish> getFishArrayFromFile() {
+
+        // Get current user
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+        String user = sharedPref.getString("current_user", "");
+
         //"Pre"Serialize arraylist if empty
-        @SuppressLint("SdCardPath") File f = new File("/data/data/com.example.vko11v3/files/FishList");
+        @SuppressLint("SdCardPath") File f = new File("/data/data/com.example.vko11v3/files/" + user + "_FishList");
         if(!f.exists() && !f.isDirectory()) {
             ArrayList<Fish> fList = new ArrayList<>();
-            SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"FishList", fList);
+            SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fList);
         }
 
         //Deserialize existing fish ArrayList from file and return it
-        return SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),"FishList");
+        return SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),user + "_FishList");
     }
 
     // Create a Directory for the photo to be saved at
@@ -271,58 +282,67 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
     // overwrites the saved Fish with one that has location data
     private void getLocation() throws NullPointerException{
 
-        // Check if has permission to use location
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        try {
+            // Check if has permission to use location
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            // No location permission so request permission
-            ActivityCompat.requestPermissions(requireActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
-            return;
-        }
-
-        // Add listener for when the location data is received
-        // if no location data is received this never executes
-        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
-            //Initialize location
-            Location location = task.getResult();
-
-            // If successfully retrieved location data
-            if (location != null) {
-                try {
-
-                    // Initialize geoCoder
-                    Geocoder geocoder = new Geocoder(getActivity(),
-                            Locale.getDefault());
-                    // Initialize address list
-                    List<Address> addresses = geocoder.getFromLocation(
-                            location.getLatitude(), location.getLongitude(), 1);
-
-                    // Set variables
-                    latitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
-                    longitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
-                    locality = addresses.get(0).getLocality(); // City
-
-                    // Get weather data from coordinates
-                    URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
-                    tempCelcius = readJSON(URLWeather);
-
-                    // Overwrites the previously saved fish with one that has the location data
-                    Fish fish = new Fish(title, weight, inGrams, length, imageFileName, latitude, longitude, tempCelcius, locality);
-                    fList = getFishArrayFromFile();
-
-                    // Remove the previously added fish without location data
-                    fList.remove(fList.size() - 1);
-
-                    // Add new fish to file
-                    addFishToFile(fish);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                // No location permission so request permission
+                ActivityCompat.requestPermissions(requireActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
+                return;
             }
-        });
+
+            // Add listener for when the location data is received
+            // if no location data is received this never executes
+            fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+                //Initialize location
+                Location location = task.getResult();
+
+                // If successfully retrieved location data
+                if (location != null) {
+                    try {
+                        // Initialize geoCoder
+                        Geocoder geocoder = new Geocoder(getActivity(),
+                                Locale.getDefault());
+                        // Initialize address list
+                        List<Address> addresses = geocoder.getFromLocation(
+                                location.getLatitude(), location.getLongitude(), 1);
+
+                        // Set variables
+                        latitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLatitude())));
+                        longitude = String.valueOf(Html.fromHtml(String.valueOf(addresses.get(0).getLongitude())));
+                        locality = addresses.get(0).getLocality(); // City
+
+                        // Get weather data from coordinates
+                        URLWeather = WEATHER_URL + "?lat=" +addresses.get(0).getLatitude()+"&lon="+addresses.get(0).getLongitude()+"&appid="+APP_ID;
+                        tempCelcius = readJSON(URLWeather);
+
+                        // Overwrites the previously saved fish with one that has the location data
+                        Fish fish = new Fish(title, weight, inGrams, length, imageFileName, latitude, longitude, tempCelcius, locality);
+                        fList = getFishArrayFromFile();
+
+                        // Remove the previously added fish without location data
+                        fList.remove(fList.size() - 1);
+
+                        // Add new fish to file
+                        addFishToFile(fish);
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (NullPointerException e) {
+                        Toast.makeText(requireContext(), "Error while fetching location data", Toast.LENGTH_LONG).show();
+                        System.out.println("----- Error while getting location -----");
+                    }
+                }
+            });
+        } catch (NullPointerException exception) {
+            Toast.makeText(requireContext(), "Error while fetching location data", Toast.LENGTH_LONG).show();
+            System.out.println("----- Error while getting location -----");
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("----- Error with file while getting location -----");
+        }
     }
 
     // Reads the JSON file received from Open Weathers api

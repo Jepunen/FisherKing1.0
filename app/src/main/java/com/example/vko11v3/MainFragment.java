@@ -42,6 +42,8 @@ import java.util.Locale;
 
 public class MainFragment extends Fragment {
 
+    String user;
+
     //get weather variables
     final String APP_ID = "8083d74fdf91756ac7b6cba38cd2b8e9";
     final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
@@ -71,9 +73,12 @@ public class MainFragment extends Fragment {
         // Show navigation toolbar
         ((MainInterface) requireActivity()).hideNavToolbar(false);
 
+
+
         // Set as last been on fragment
         SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
         sharedPref.edit().putString("last_page", "Main").apply();
+        user = sharedPref.getString("current_user", "");
 
         //get weather
         temperature = view.findViewById(R.id.temperature);
@@ -145,13 +150,13 @@ public class MainFragment extends Fragment {
         fList.add(f2);
         fList.add(f3);
 
-        SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"FishList", fList);
+        SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fList);
     }
 
     // Prints fish out to console - TEMP
     private void listFish() {
         ArrayList<Fish> fishHistory;
-        fishHistory = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),"FishList");
+        fishHistory = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),user + "_FishList");
 
         System.out.println();
         System.out.println("*** ALl YOUR CATCHES: ***");

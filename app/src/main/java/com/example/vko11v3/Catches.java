@@ -25,6 +25,7 @@ import java.util.Collections;
 public class Catches extends Fragment implements CatchesRecyclerViewAdapter.recyclerInterFace {
 
     ArrayList<Fish> catches = new ArrayList<>();
+    String user;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,14 +41,15 @@ public class Catches extends Fragment implements CatchesRecyclerViewAdapter.recy
         // Get the user data file and set "Catches" as last been on page
         SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
         sharedPref.edit().putString("last_page", "Catches").apply();
+        user = sharedPref.getString("current_user", "");
 
         // Find get element by ID
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
 
         // Check if fish list file exists, and if not, create it
-        @SuppressLint("SdCardPath") File f = new File("/data/data/com.example.vko11v3/files/FishList");
+        @SuppressLint("SdCardPath") File f = new File("/data/data/com.example.vko11v3/files/" + user + "_FishList");
         if(!f.exists() && !f.isDirectory()) {
-            SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"FishList", catches);
+            SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", catches);
         }
         setUpRecyclerView();
 
@@ -60,7 +62,7 @@ public class Catches extends Fragment implements CatchesRecyclerViewAdapter.recy
 
     // Get fish from file and reverse file to show last added fish first
     private void setUpRecyclerView (  ) {
-        catches = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),"FishList");
+        catches = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),user + "_FishList");
         Collections.reverse(catches);
     }
 
