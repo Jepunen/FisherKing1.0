@@ -28,6 +28,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -59,6 +60,11 @@ public class MainFragment extends Fragment {
     //getFish variables TEMP
     Button btFish;
     Button btListFish;
+
+    //weather forecast
+    String URLWeatherForecast;
+    final String WEATHER_URL_FORECAST = "https://api.openweathermap.org/data/2.5/onecall";
+    boolean isLocation = false;
 
     @Nullable
     @Override
@@ -125,7 +131,9 @@ public class MainFragment extends Fragment {
         // "Get temperature" button listener
         btTemperature.setOnClickListener(view13 -> {
             //readJSON(URLWeather);
-            System.out.println("*** test - get temperature button pressed ***");
+            System.out.println("*** test - Weather forecast button pressed ***");
+            readJSONForecast();
+
         });
 
         // Get Fish button listener
@@ -258,4 +266,66 @@ public class MainFragment extends Fragment {
         }
         return response;
     }
+
+    //Weather forecast
+    @SuppressLint("SetTextI18n")
+    //public void readJSONForecast (String URLWeatherForecast) {
+    public void readJSONForecast () {
+        //
+        String json = getJSONForecast();
+        //System.out.println("JSON: "+json);
+        //https://devqa.io/how-to-parse-json-in-java/
+        try {
+
+            //prints info to console from fixed URL:
+            //http://jsonviewer.stack.hu/#https://api.openweathermap.org/data/2.5/onecall?lat=60.984752099999994&lon=25.657131500000002&exclude=hourly,alerts,minutely&appid=8083d74fdf91756ac7b6cba38cd2b8e9
+            JSONObject obj = new JSONObject(json);
+            JSONArray arr = obj.getJSONArray("daily");
+            for( int i = 0; i < arr.length(); i++) {
+                Double dt = arr.getJSONObject(i).getDouble("dt");
+
+
+
+
+                Double dayTemp = arr.getJSONObject(i).getJSONObject("temp").getDouble("day");
+                String description = arr.getJSONObject(i).getJSONArray("weather").getJSONObject(0).getString("description");
+
+                System.out.println("\n*** forecast for date (UNIX format): "+dt+" ***");
+                System.out.println("*** day temperature: "+dayTemp+", description: "+description+" ***");
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //Weather forecast
+    //public String getJSONForecast (String URLWeatherForecast) {
+    public String getJSONForecast () {
+        String response = null;
+
+        try {
+            URL url = new URL("https://api.openweathermap.org/data/2.5/onecall?lat=60.984752099999994&lon=25.657131500000002&exclude=hourly,alerts,minutely&appid=8083d74fdf91756ac7b6cba38cd2b8e9");
+            //URL url = new URL(URLWeather);
+
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            InputStream in = new BufferedInputStream(conn.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while((line = br.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            response = sb.toString();
+            in.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+
 }

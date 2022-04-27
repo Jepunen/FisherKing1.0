@@ -125,7 +125,7 @@
         android:id="@+id/btTemperature"
         android:layout_width="145dp"
         android:layout_height="48dp"
-        android:text="temperature"
+        android:text="Weather Forecast"
         android:textSize="10sp"
         app:layout_constraintBottom_toTopOf="@+id/temperature"
         app:layout_constraintEnd_toEndOf="parent"
