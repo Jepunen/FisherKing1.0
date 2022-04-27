@@ -11,4 +11,5 @@ public interface MainInterface {
     void showAddUsernamePopup(View view);
     void showFishDetails(Fish fish, int position);
     void showImageFullscreen(Fish fish);
+    void startGoogleMaps(Fish fish);
 }

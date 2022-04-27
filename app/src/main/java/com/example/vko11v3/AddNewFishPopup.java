@@ -56,7 +56,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 public class AddNewFishPopup extends AppCompatDialogFragment {
 
@@ -341,6 +340,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
             Toast.makeText(requireContext(), "Error while fetching location data", Toast.LENGTH_LONG).show();
             System.out.println("----- Error while getting location -----");
         } catch (IndexOutOfBoundsException e) {
+            Toast.makeText(requireContext(), "Error while saving new fish", Toast.LENGTH_LONG).show();
             System.out.println("----- Error with file while getting location -----");
         }
     }

@@ -76,4 +76,9 @@ public class Catches extends Fragment implements CatchesRecyclerViewAdapter.recy
         ((MainInterface)requireActivity()).showFishDetails(fish, position);
 
     }
+
+    @Override
+    public void startGoogleMaps(Fish fish) {
+        ((MainInterface)requireActivity()).startGoogleMaps(fish);
+    }
 }

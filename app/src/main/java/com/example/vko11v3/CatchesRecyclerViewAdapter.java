@@ -6,6 +6,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +65,9 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
         if ( fish.getLocality() == null ) {
             holder.timePlace.setText("Location data not saved");
         } else {
-            holder.timePlace.setText(fish.getLocality());
+            SpannableString content = new SpannableString(fish.getLocality() + ", open in Maps");
+            content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
+            holder.timePlace.setText(content);
         }
         holder.fish = fish;
         holder.position = position;
@@ -113,11 +117,15 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
             // Opens the image in AlertDialog with bigger ImageView
             image = itemView.findViewById(R.id.recyclerImageView);
             image.setOnClickListener(view -> rListener.openFullScreenImage(fish));
+
+            // Opens the location in google maps
+            timePlace.setOnClickListener(view -> rListener.startGoogleMaps(fish));
         }
     }
 
     public interface recyclerInterFace {
         void openFullScreenImage(Fish fish);
         void openDetailsPopup(Fish fish, int position);
+        void startGoogleMaps(Fish fish);
     }
 }

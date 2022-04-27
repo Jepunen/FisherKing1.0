@@ -14,8 +14,10 @@ import androidx.fragment.app.FragmentTransaction;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -234,5 +236,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void showImageFullscreen(Fish fish) {
         FullScreenImage dialog = new FullScreenImage(fish);
         dialog.show(getSupportFragmentManager(), "Fullscreen image");
+    }
+
+    @Override
+    public void startGoogleMaps (Fish fish) {
+        String geoLocation = "http://maps.google.com/maps?q=loc:" + fish.getLatitude() + "," + fish.getLongitude();
+        Intent laucnhMaps = new Intent(Intent.ACTION_VIEW);
+        laucnhMaps.setData(Uri.parse(geoLocation));
+        Intent chooseMaps = Intent.createChooser(laucnhMaps, "Launch maps");
+        startActivity(chooseMaps);
     }
 }
