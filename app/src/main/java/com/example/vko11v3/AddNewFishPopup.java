@@ -174,7 +174,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                     // Go try to get location and in case we get a location
                     // Overwrites the saved fish with a new fish that has location data
                     getLocation();
-                    ((MainInterface)requireActivity()).makeToast("New fish saved");
+                    ((MainInterface)requireActivity()).makeToast("Fish saved");
                 })
                 // Listener for this is in onResume method
                 .setNeutralButton("Add picture", null);
