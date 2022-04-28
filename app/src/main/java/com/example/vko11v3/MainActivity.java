@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 import java.util.Objects;
@@ -245,5 +246,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         laucnhMaps.setData(Uri.parse(geoLocation));
         Intent chooseMaps = Intent.createChooser(laucnhMaps, "Launch maps");
         startActivity(chooseMaps);
+    }
+
+    @Override
+    public void makeToast (String text) {
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
     }
 }

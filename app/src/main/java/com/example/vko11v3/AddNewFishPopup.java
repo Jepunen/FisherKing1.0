@@ -148,7 +148,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         builder.setView(view)
                 .setTitle("Add new fish")
                 // Creates a new fish object and saves it to an array
-                .setPositiveButton("Add", (dialogInterface, i) -> {
+                .setPositiveButton("Save", (dialogInterface, i) -> {
 
                     // Title cannot be empty, so set text
                     // (see buttonCanBePressed())
@@ -174,6 +174,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                     // Go try to get location and in case we get a location
                     // Overwrites the saved fish with a new fish that has location data
                     getLocation();
+                    ((MainInterface)requireActivity()).makeToast("New fish saved");
                 })
                 // Listener for this is in onResume method
                 .setNeutralButton("Add picture", null);
