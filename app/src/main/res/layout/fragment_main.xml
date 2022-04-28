@@ -10,6 +10,20 @@
     <!-- Tästä alkaa location TextViewt -->
 
     <TextView
+        android:id="@+id/rankTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="You have no rank"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/goToCatchesPageBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.531"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sunriseSunsetImageView"
+        app:layout_constraintVertical_bias="0.507" />
+
+    <TextView
         android:id="@+id/temperatureTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -205,6 +219,7 @@
         android:id="@+id/goToCatchesPageBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
         android:text="@string/go_to_latest_catches"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -264,16 +279,31 @@
         app:layout_constraintBottom_toTopOf="@+id/windSpeed"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <Button
-        android:id="@+id/analysisBtn"
+    <TextView
+        android:id="@+id/totalCatchesTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="80dp"
-        android:text="Analyze your catches"
+        android:layout_marginBottom="100dp"
+        android:text="No caught fish"
+        android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/goToCatchesPageBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sunriseSunsetImageView" />
+
+    <TextView
+        android:id="@+id/bestCityTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="No favourite place"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/goToCatchesPageBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.52"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sunriseSunsetImageView"
+        app:layout_constraintVertical_bias="0.763" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

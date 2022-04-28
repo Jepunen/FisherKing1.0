@@ -79,13 +79,16 @@ public class MainFragment extends Fragment {
     TextView windSpeedText;
     TextView sunriseText;
     TextView sunsetText;
+    TextView totalCatches;
+    TextView fisherRank;
+    TextView bestCity;
 
     ImageView nextDayWeather;
     ImageView previousDayWeather;
     ImageView weatherTypeImage;
 
     Button goToCatches;
-    Button analyzeFish; //temp -> see if needed as button in final version (or display data automatically)
+    //Button analyzeFish; //temp -> see if needed as button in final version (or display data automatically)
 
     // Get location variables
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -93,9 +96,20 @@ public class MainFragment extends Fragment {
     double location_longitude_value;
     String location_locality;
 
-    // Weather forecast
+    // Weather forecast variables
     String URLWeatherForecast;
     final String WEATHER_URL_FORECAST = "https://api.openweathermap.org/data/2.5/onecall";
+
+    // Analyze fish variables
+    double total_weight = 0.0;
+    double old_Weight = 0.0;
+    double new_weight = 0.0;
+    String maxCity = null;
+    double maxCity_weight = 0.0;
+    HashMap<String, Double> fishByCity = new HashMap<String, Double>();
+
+    // Ranking
+    String rank = null;
 
     @Nullable
     @Override
@@ -138,8 +152,12 @@ public class MainFragment extends Fragment {
         nextDayWeather = view.findViewById(R.id.nextDayButton);
         previousDayWeather = view.findViewById(R.id.previousDayButton);
         previousDayWeather.setVisibility(View.GONE);
-        // Buttons
+        // Button
         goToCatches = view.findViewById(R.id.goToCatchesPageBtn);
+        // Fish stats
+        totalCatches = view.findViewById(R.id.totalCatchesTextView);
+        fisherRank = view.findViewById(R.id.rankTextView);
+        bestCity =  view.findViewById(R.id.bestCityTextView);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -148,8 +166,8 @@ public class MainFragment extends Fragment {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
         // Analyze fish button + listener -> TEMP see if needed in final version
-        analyzeFish = view.findViewById(R.id.analysisBtn);
-        analyzeFish.setOnClickListener(view1 -> analyzeFish());
+        //analyzeFish = view.findViewById(R.id.analysisBtn);
+        //analyzeFish.setOnClickListener(view1 -> analyzeFish());
 
         // Floating "+" button listener
         FloatingActionButton addCatch = view.findViewById(R.id.floatingAddCatch);
@@ -195,6 +213,15 @@ public class MainFragment extends Fragment {
             transaction.replace(R.id.container_fragment, catches);
             transaction.commit();
         });
+
+        //set users data for caught fish
+        analyzeFish();
+        rank = fishingRank(total_weight);
+        //totalCatches.setText("Your fish total"+ total_weight);
+        totalCatches.setText("Your fish total: "+Math.round(total_weight*10.0)/10.0+" kg");
+        fisherRank.setText("Your rank: "+rank);
+        bestCity.setText("Best location: "+maxCity+", "+ maxCity_weight+" kg");
+
     }
 
     // Gets the users LastLocation and if successfully gets location
@@ -431,15 +458,15 @@ public class MainFragment extends Fragment {
         weatherTypeImage.setImageBitmap(bitmap);
     }
 
-    //WORK IN PROGRESS -> analyze caught fish
+    // Analyze caught fish
     private void analyzeFish() {
         ArrayList<Fish> fishHistory = new ArrayList<>();
-        double total_weight = 0.0;
+        /*double total_weight = 0.0;
         double old_Weight = 0.0;
         double new_weight = 0.0;
         String maxCity = null;
         double maxCity_weight = 0.0;
-        HashMap<String, Double> fishByCity = new HashMap<String, Double>();
+        HashMap<String, Double> fishByCity = new HashMap<String, Double>();*/
 
         // Get current user
         SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
@@ -452,7 +479,7 @@ public class MainFragment extends Fragment {
             SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fishHistory);
         }
 
-        //TEMP - add some fish without locationd data
+        //TEMP - add some fish without location data
         /*fishHistory = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),user + "_FishList");
         Fish f1 = new Fish("Särki", 120.0, true, 0.0, "null");
         Fish f2 = new Fish("Ahven", 300.0, true, 0.0, "null");
@@ -461,7 +488,7 @@ public class MainFragment extends Fragment {
         fishHistory.add(f2);
         fishHistory.add(f3);
 
-        //TEMP - add some fish without locationd data
+        //TEMP - add some fish with location data
         Fish f4 = new Fish("Säynävä", 120.0, true, 0.0, "null", "61.233155", "28.337010", 10.0, "Saimaa");
         Fish f5 = new Fish("Hauki", 300.0, true, 0.0, "null", "61.233155", "28.337010", 10.0, "Päijänne");
         Fish f6 = new Fish("Siika", 1.2, false, 0.0, "null", "61.233155", "28.337010", 10.0, "Inari");
@@ -538,6 +565,39 @@ public class MainFragment extends Fragment {
         }
         System.out.println("*** Your best city in fish caught: "+maxCity+" : "+maxCity_weight+" ***");
 
+    }
+
+    private String fishingRank(double total_weight) {
+        if (total_weight < 10) {
+            rank = "Beginner";
+        } else if (total_weight < 20) {
+            rank = "Amateur";
+        } else if (total_weight < 50) {
+            rank = "Novice";
+        } else if (total_weight < 100) {
+            rank = "Oarsman";
+        } else if (total_weight < 200) {
+            rank = "First mate";
+        } else if (total_weight < 300) {
+            rank = "Fisher";
+        } else if (total_weight < 400) {
+            rank = "Badass";
+        } else if (total_weight < 500) {
+            rank = "Captain";
+        } else if (total_weight < 600) {
+            rank = "Fleet Commander";
+        } else if (total_weight < 700) {
+            rank = "Admiral";
+        } else if (total_weight < 800) {
+            rank = "Supermaster";
+        } else if (total_weight < 900) {
+            rank = "Fishing demon";
+        } else if (total_weight < 1000) {
+            rank = "Fishing god";
+        } else {
+            rank = "* Fisher King *";
+        }
+        return rank;
     }
 
 }
