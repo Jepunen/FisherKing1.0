@@ -46,10 +46,11 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.TimeZone;
 
 public class MainFragment extends Fragment {
@@ -84,6 +85,7 @@ public class MainFragment extends Fragment {
     ImageView weatherTypeImage;
 
     Button goToCatches;
+    Button analyzeFish; //temp -> see if needed as button in final version (or display data automatically)
 
     // Get location variables
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -136,7 +138,7 @@ public class MainFragment extends Fragment {
         nextDayWeather = view.findViewById(R.id.nextDayButton);
         previousDayWeather = view.findViewById(R.id.previousDayButton);
         previousDayWeather.setVisibility(View.GONE);
-        // Button
+        // Buttons
         goToCatches = view.findViewById(R.id.goToCatchesPageBtn);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -144,6 +146,10 @@ public class MainFragment extends Fragment {
 
         // Initialize fusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+
+        // Analyze fish button + listener -> TEMP see if needed in final version
+        analyzeFish = view.findViewById(R.id.analysisBtn);
+        analyzeFish.setOnClickListener(view1 -> analyzeFish());
 
         // Floating "+" button listener
         FloatingActionButton addCatch = view.findViewById(R.id.floatingAddCatch);
@@ -424,4 +430,114 @@ public class MainFragment extends Fragment {
         }
         weatherTypeImage.setImageBitmap(bitmap);
     }
+
+    //WORK IN PROGRESS -> analyze caught fish
+    private void analyzeFish() {
+        ArrayList<Fish> fishHistory = new ArrayList<>();
+        double total_weight = 0.0;
+        double old_Weight = 0.0;
+        double new_weight = 0.0;
+        String maxCity = null;
+        double maxCity_weight = 0.0;
+        HashMap<String, Double> fishByCity = new HashMap<String, Double>();
+
+        // Get current user
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+        String user = sharedPref.getString("current_user", "");
+        System.out.println("*** test: current user is: "+user+" ***"); //TEMP
+
+        //"Pre"Serialize arraylist if empty
+        @SuppressLint("SdCardPath") File f = new File("/data/data/com.example.vko11v3/files/" + user + "_FishList");
+        if(!f.exists() && !f.isDirectory()) {
+            SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fishHistory);
+        }
+
+        //TEMP - add some fish without locationd data
+        /*fishHistory = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),user + "_FishList");
+        Fish f1 = new Fish("Särki", 120.0, true, 0.0, "null");
+        Fish f2 = new Fish("Ahven", 300.0, true, 0.0, "null");
+        Fish f3 = new Fish("Kuha", 1.2, false, 0.0, "null");
+        fishHistory.add(f1);
+        fishHistory.add(f2);
+        fishHistory.add(f3);
+
+        //TEMP - add some fish without locationd data
+        Fish f4 = new Fish("Säynävä", 120.0, true, 0.0, "null", "61.233155", "28.337010", 10.0, "Saimaa");
+        Fish f5 = new Fish("Hauki", 300.0, true, 0.0, "null", "61.233155", "28.337010", 10.0, "Päijänne");
+        Fish f6 = new Fish("Siika", 1.2, false, 0.0, "null", "61.233155", "28.337010", 10.0, "Inari");
+        fishHistory.add(f4);
+        fishHistory.add(f5);
+        fishHistory.add(f6);
+        SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fishHistory);*/
+
+        // Saimaa 61.233155, 28.337010
+        // Näsijärvi 61.671543, 23.739232
+        // Lake Inari 68.969045, 27.643564
+
+        // Deserialize existing fish ArrayList from file
+        fishHistory = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),user + "_FishList");
+
+
+        for (Fish fish : fishHistory) {
+
+            //calculate total weight of all caught fish
+            if(fish.isInGrams()) {
+                total_weight += fish.weight/1000;
+            } else {
+                total_weight += fish.weight;
+            }
+
+
+            //fill hashmap: locality + caught weight
+            //if city already in hashmap
+            if(fishByCity.containsKey(fish.locality)){
+
+                //get old weight for city
+                old_Weight = fishByCity.get(fish.locality);
+
+                //convert new weight in city to KG´s before saving
+                if(fish.isInGrams()) {
+                    new_weight = fish.weight / 1000;
+                } else {
+                    new_weight = fish.weight;
+                }
+
+                fishByCity.put(fish.locality, old_Weight + new_weight);
+
+                //if new city
+            } else {
+
+                //convert new weight in city to KG´s before saving
+                if(fish.isInGrams()) {
+                    new_weight = fish.weight/1000;
+                } else {
+                    new_weight = fish.weight;
+                }
+                fishByCity.put(fish.locality, new_weight);
+            }
+        }
+
+
+        //Find max value city and weight in city
+        for (String i : fishByCity.keySet()) {
+            if(fishByCity.get(i) > maxCity_weight) {
+                maxCity = i;
+                maxCity_weight = fishByCity.get(i);
+            }
+        }
+
+
+        //TEMP - Print analysis to console
+        System.out.println("TOTAL WEIGHT OF YOUR CATCHES: "+ total_weight);
+        System.out.println("TOTAL WEIGHT OF CATCHES BY CITY: ");
+        for (String i : fishByCity.keySet()) {
+            /*if(i != null) {
+                System.out.println("City: " + i + ", Fish weight: " + fishByCity.get(i));
+            }*/
+            System.out.println("City: " + i + ", Fish weight: " + fishByCity.get(i));
+        }
+        System.out.println("*** Your best city in fish caught: "+maxCity+" : "+maxCity_weight+" ***");
+
+    }
+
 }
