@@ -8,14 +8,12 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -58,17 +56,6 @@ public class Catches extends Fragment implements CatchesRecyclerViewAdapter.recy
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        ImageView homeBtn = view.findViewById(R.id.catchHomePageBtn);
-        homeBtn.setOnClickListener(view1 -> {
-            Fragment home = new MainFragment();
-            FragmentTransaction transaction = getParentFragmentManager().beginTransaction()
-                    .setCustomAnimations(
-                            R.anim.fade_in,
-                            R.anim.fade_out
-                    );
-            transaction.replace(R.id.container_fragment, home );
-            transaction.commit();
-        });
     }
 
     // Get fish from file and reverse file to show last added fish first

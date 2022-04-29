@@ -57,7 +57,7 @@
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="verification_code">Verification code</string>
     <string name="picture_of_a_fish">Picture of a fish</string>
-    <string name="caught_fish">Caught fish</string>
+    <string name="caught_fish">History</string>
     <string name="navigationmaps">Maps</string>
     <string name="c">C</string>
     <string name="sunset">Sunset</string>

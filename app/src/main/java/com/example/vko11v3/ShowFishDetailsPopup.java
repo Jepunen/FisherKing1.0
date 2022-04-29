@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -188,6 +189,10 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
         super.onResume();
         AlertDialog dialog = (AlertDialog) getDialog();
 
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(requireContext(), R.color.teal_200));
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(ContextCompat.getColor(requireContext(), R.color.teal_200));
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(requireContext(), R.color.teal_200));
+
         // Delete button confirmation for deleting a fish listener
         assert dialog != null;
         Button deleteConfirmation = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
@@ -214,13 +219,7 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
                 dismiss();
 
                 // Refresh recyclerView
-                Fragment catches = new Catches();
-                FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
-                        R.anim.fade_in,
-                        R.anim.fade_out
-                );
-                transaction.replace(R.id.container_fragment, catches ); // give your fragment container id in first parameter
-                transaction.commit();
+                ((MainInterface)requireActivity()).goToFragment(new Catches(), true);
             });
             alert.setNegativeButton("No", (dialog12, which) -> dialog12.dismiss());
             alert.show();

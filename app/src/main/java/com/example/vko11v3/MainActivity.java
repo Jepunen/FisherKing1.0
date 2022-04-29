@@ -1,26 +1,37 @@
 package com.example.vko11v3;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,7 +42,10 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainInterface {
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
+    ActionBar actionBar;
+    ActionBar homeBtn;
     Toolbar toolbar;
+    boolean drawerOpen = false;
     NavigationView navigationView;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
@@ -43,6 +57,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Switch homeStart;
     TextView headerText;
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.actionbar, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
     @SuppressLint({"SetTextI18n", "CommitPrefEdits"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +71,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
+        actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setElevation(20);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_home_24);
 
         drawerLayout = findViewById(R.id.drawer);
         navigationView = findViewById(R.id.navigationView);
@@ -63,10 +87,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         actionBarDrawerToggle.syncState();
 
+
         // Navigation drawer header text
         View headerView = navigationView.getHeaderView(0);
         headerText = headerView.findViewById(R.id.drawer_header);
-
+        ImageView logo = headerView.findViewById(R.id.drawerImageView);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
+        logo.setImageBitmap(bitmap);
+        logo.setOnClickListener(view -> {
+            goToFragment(new MainFragment(), true);
+            drawerLayout.close();
+            drawerOpen = false;
+        });
         // Get user data file
         SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
 
@@ -88,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Check if user has "Remember me" option checked, and who is logged in
         // depending on that set the default fragment as login fragment or main fragment
-        if (!sharedPref.getString("logged_in_as", null).equals("null")) {
+        if (!sharedPref.getString("logged_in_as", "null").equals("null")) {
 
             // If the user wants to always start from home page
             if ( !sharedPref.getBoolean("always_start_from_home", false) ) {
@@ -96,22 +128,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 String last_page = sharedPref.getString("last_page", null);
                 if (last_page.equals("null")) {
                     // User hasn't been on home or catches page so assume they're not logged in
-                    fragmentTransaction.replace(R.id.container_fragment, new LogInFragment(), "MY_FRAGMENT");
+                    fragmentTransaction.replace(R.id.container_fragment, new LogInFragment(), "MY_LOGIN");
                 } else {
                     switch (Objects.requireNonNull(last_page)) {
                         case ("Main"):
-                            fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
+                            fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_HOME");
                             break;
                         case ("Catches"):
-                            fragmentTransaction.replace(R.id.container_fragment, new Catches(), "MY_FRAGMENT");
+                            fragmentTransaction.replace(R.id.container_fragment, new Catches(), "MY_CATCHES");
                             break;
                         default:
-                            fragmentTransaction.replace(R.id.container_fragment, new LogInFragment(), "MY_FRAGMENT");
+                            fragmentTransaction.replace(R.id.container_fragment, new LogInFragment(), "MY_LOGIN");
                             break;
                     }
                 }
             } else { // User wants to start from home
-                fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_FRAGMENT");
+                fragmentTransaction.replace(R.id.container_fragment, new MainFragment(), "MY_HOME");
             }
             // Update nav header text
             setNavHeaderText();
@@ -149,36 +181,59 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    public void onBackPressed() {
+        goToFragment(new MainFragment(), true);
+    }
+
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        if (item.getItemId() == android.R.id.home) {
+            if (!drawerOpen) {
+                drawerLayout.openDrawer(GravityCompat.START);
+                drawerOpen = true;
+            } else {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                drawerOpen = false;
+            }
+            return true;
+        }
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (!drawerOpen) {
+                    drawerLayout.openDrawer(GravityCompat.START);
+                    drawerOpen = true;
+                } else {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    drawerOpen = false;
+                }
+                return true;
+            case R.id.action_home:
+                goToFragment(new MainFragment(), true);
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         // Home page
         if (menuItem.getItemId() == R.id.navigationHome) {
-            fragmentManager = getSupportFragmentManager();
-            fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(
-                    R.anim.fade_in,
-                    R.anim.fade_out
-            );
-            fragmentTransaction.replace(R.id.container_fragment, new MainFragment());
-            fragmentTransaction.commit();
+            goToFragment(new MainFragment(), true);
         }
         // 2nd page - Hidden currently, no need atm
         if (menuItem.getItemId() == R.id.navigationSettings) {
-            fragmentManager = getSupportFragmentManager();
-            fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(
-                    R.anim.fade_in,
-                    R.anim.fade_out
-            );
-            fragmentTransaction.replace(R.id.container_fragment, new SettingsFragment());
-            fragmentTransaction.commit();
+            goToFragment(new SettingsFragment(), true);
         }
         // All catches
         if (menuItem.getItemId() == R.id.navigationCatches) {
-            fragmentManager = getSupportFragmentManager();
-            fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(
-                    R.anim.fade_in,
-                    R.anim.fade_out
-            );
-            fragmentTransaction.replace(R.id.container_fragment, new Catches());
-            fragmentTransaction.commit();
+            goToFragment(new Catches(), true);
+        }
+        if (menuItem.getItemId() == R.id.action_home) {
+            goToFragment(new MainFragment(), true);
         }
         // Logout
         if (menuItem.getItemId() == R.id.navigationLogout) {
@@ -190,15 +245,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             sharedPref.edit().putString("current_user", null).apply();
 
             // Redirect to login page
-            fragmentManager = getSupportFragmentManager();
-            fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(
-                    R.anim.fade_in,
-                    R.anim.fade_out
-            );
-            fragmentTransaction.replace(R.id.container_fragment, new LogInFragment());
-            fragmentTransaction.commit();
+            goToFragment(new LogInFragment(), true);
         }
         drawerLayout.closeDrawer(GravityCompat.START);
+        drawerOpen = false;
         return true;
     }
 
@@ -209,9 +259,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override // Enables / disables the navigation toolbar to prevent access to it
     public void hideNavToolbar(boolean shouldLock) {
         if (shouldLock) {
-            toolbar.setVisibility(View.GONE);
+            actionBar.hide();
         } else {
-            toolbar.setVisibility(View.VISIBLE);
+            actionBar.show();
         }
     }
 
@@ -266,5 +316,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void makeToast (String text) {
         Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void goToFragment (Fragment fragment, boolean animated) {
+
+        if ( animated ) {
+            fragmentManager = getSupportFragmentManager();
+            fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out
+            );
+            fragmentTransaction.replace(R.id.container_fragment, fragment);
+            fragmentTransaction.commit();
+        } else {
+            fragmentManager = getSupportFragmentManager();
+            fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.container_fragment, fragment);
+            fragmentTransaction.commit();
+        }
     }
 }

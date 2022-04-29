@@ -46,7 +46,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/Theme.Vko11V3"
             android:windowSoftInputMode="adjustPan"
             android:hardwareAccelerated="true">
             <intent-filter>

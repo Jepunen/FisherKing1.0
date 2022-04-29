@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -37,7 +38,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -175,6 +179,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                     // Overwrites the saved fish with a new fish that has location data
                     getLocation();
                     ((MainInterface)requireActivity()).makeToast("Fish saved");
+                    ((MainInterface)requireActivity()).goToFragment(new MainFragment(), false);
                 })
                 // Listener for this is in onResume method
                 .setNeutralButton("Add picture", null);
@@ -183,11 +188,14 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         return builder.create();
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "ResourceAsColor"})
     @Override
     public void onResume() {
         super.onResume();
         AlertDialog dialog = (AlertDialog) getDialog();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(requireContext(), R.color.teal_200));
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(ContextCompat.getColor(requireContext(), R.color.teal_200));
 
         // Disable the "Add" button if Title text field is empty
         buttonCanBePressed(!TextUtils.isEmpty(newFishName.getText().toString()));

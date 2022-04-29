@@ -19,7 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.Executor;
@@ -45,14 +44,14 @@ public class LogInFragment extends Fragment {
         // -- Get screen elements by ID --
         message  = view.findViewById(R.id.loginMessage);
         EditText username = view.findViewById(R.id.loginUsername);
-        EditText password = view.findViewById(R.id.resetEmail);
+        EditText password = view.findViewById(R.id.passwordEditText);
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch rememberMe = view.findViewById(R.id.loginRememberMe);
         // -- Get screen elements by ID - END --
 
         // -- Get buttons and add listeners --
         // "Login" button
-        Button loginButton = view.findViewById(R.id.sendEmail);
+        Button loginButton = view.findViewById(R.id.loginButton);
         loginButton.setOnClickListener(view1 -> {
             String user = username.getText().toString();
             String pass = password.getText().toString();
@@ -67,29 +66,13 @@ public class LogInFragment extends Fragment {
 
         // "Register" button, redirects to register page
         Button registerButton = view.findViewById(R.id.loginRegisterButton);
-        registerButton.setOnClickListener(view12 -> {
-            Fragment register = new RegisterFragment();
-            FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
-                    R.anim.fade_in,
-                    R.anim.fade_out
-            );
-            transaction.replace(R.id.container_fragment, register );
-            transaction.commit();
-        });
+        registerButton.setOnClickListener(view12 -> ((MainInterface)requireActivity()).goToFragment(new RegisterFragment(), true));
 
         // Textview "forgot password" click, open reset password fragment
         TextView resetPassword = view.findViewById(R.id.forgotPassword);
         // Set visibility to VISIBLE if add reset password
         resetPassword.setVisibility(View.GONE);
-        resetPassword.setOnClickListener(view1 -> {
-            Fragment reset = new ResetPassword();
-            FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
-                    R.anim.fade_in,
-                    R.anim.fade_out
-            );
-            transaction.replace(R.id.container_fragment, reset);
-            transaction.commit();
-        });
+        resetPassword.setOnClickListener(view1 -> ((MainInterface)requireActivity()).goToFragment(new ResetPassword(), true));
 
         // -- Biometrics login - START --
         // Initialize executor and prompt for biometrics
@@ -124,7 +107,7 @@ public class LogInFragment extends Fragment {
                 sharedPref.edit().putString("logged_in_as", user).apply();
                 // Update nav header
                 ((MainInterface) requireActivity()).setNavHeaderText();
-                goToHomeFragment();
+                ((MainInterface)requireActivity()).goToFragment(new MainFragment(), true);
             }
 
             @Override // Necessary but never got this message, so not sure when executed
@@ -182,20 +165,9 @@ public class LogInFragment extends Fragment {
             // Updates the nav header text
             ((MainInterface) requireActivity()).setNavHeaderText();
             // Redirects user to the home page since login was successful
-            goToHomeFragment();
+            ((MainInterface)requireActivity()).goToFragment(new MainFragment(), true);
         } else {
             message.setText(R.string.wrong_credentials);
         }
-    }
-
-    // Redirects user to home fragment
-    private void goToHomeFragment() {
-        Fragment main = new MainFragment();
-        FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
-                R.anim.fade_in,
-                R.anim.fade_out
-        );
-        transaction.replace(R.id.container_fragment, main );
-        transaction.commit();
     }
 }

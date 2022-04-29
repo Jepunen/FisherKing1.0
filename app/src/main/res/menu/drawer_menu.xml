@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item android:title="@string/pages">
         <menu>
             <item
@@ -26,17 +27,18 @@
                 android:icon="@android:drawable/ic_menu_view"
                 android:title="@string/night_mode"
                 app:actionLayout="@layout/switch_item"
-                app:showAsAction="ifRoom" />
+                app:showAsAction="never" />
             <item
                 android:id="@+id/navigationHomeStart"
                 android:icon="@drawable/ic_baseline_home_24"
                 android:title="@string/start_from_home_page"
                 app:actionLayout="@layout/switch_item"
-                app:showAsAction="ifRoom" />
+                app:showAsAction="never" />
             <item
                 android:id="@+id/navigationLogout"
                 android:icon="@android:drawable/ic_menu_close_clear_cancel"
                 android:title="@string/logout" />
+
         </menu>
     </item>
 </menu>

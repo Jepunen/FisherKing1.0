@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.core.content.ContextCompat;
 
 public class AddUsernamePopup extends AppCompatDialogFragment {
 
@@ -62,6 +63,9 @@ public class AddUsernamePopup extends AppCompatDialogFragment {
     public void onResume() {
         super.onResume();
         AlertDialog dialog = (AlertDialog) getDialog();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(requireContext(), R.color.teal_200));
+
         assert dialog != null;
         // Dialog cannot be exited without giving a username
         dialog.setCanceledOnTouchOutside(false);

@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -47,10 +46,10 @@ import java.net.URL;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -110,7 +109,7 @@ public class MainFragment extends Fragment {
     double new_weight = 0.0;
     String maxCity = "No data";
     double maxCity_weight = 0.0;
-    HashMap<String, Double> fishByCity = new HashMap<String, Double>();
+    HashMap<String, Double> fishByCity = new HashMap<>();
 
     // Ranking
     String rank = null;
@@ -179,18 +178,16 @@ public class MainFragment extends Fragment {
         addCatch.setOnClickListener(view12 -> ((MainInterface) requireActivity()).showAddCatchPopup(view12));
 
         String lastWeatherUpdate = sharedPref.getString("last_weather_update", null);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy-HH:mm", Locale.ENGLISH);
         if (lastWeatherUpdate != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy-HH:mm", Locale.ENGLISH);
-            Calendar cal = Calendar.getInstance();
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy-HH:mm");
-            String currentTime = date.format(cal.getTime());
-            LocalDate lastUpdate = LocalDate.parse(lastWeatherUpdate, formatter);
-            LocalDate currTime   = LocalDate.parse(currentTime, formatter);
+            String currentTime = getCurrentDateAndTime();
+            LocalDateTime lastUpdate = LocalDateTime.parse(lastWeatherUpdate, formatter);
+            LocalDateTime currTime   = LocalDateTime.parse(currentTime, formatter);
 
-            if (!lastUpdate.equals(currTime)) {
+            if (currTime.isAfter(lastUpdate.plusHours(1))) {
                 getLocationForecast();
             } else {
-                System.out.println("*********** Today's weather already fetched ***********");
+                System.out.println("*********** Weather fetched within 1 hour ***********");
             }
         } else {
             getLocationForecast();
@@ -228,15 +225,7 @@ public class MainFragment extends Fragment {
             dayTracker--;
             updateInfoFromArrayList(weatherArrayList.get(dayTracker));
         });
-        goToCatches.setOnClickListener(view1 -> {
-            Fragment catches = new Catches();
-            FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
-                    R.anim.fade_in,
-                    R.anim.fade_out
-            );
-            transaction.replace(R.id.container_fragment, catches);
-            transaction.commit();
-        });
+        goToCatches.setOnClickListener(view1 -> ((MainInterface)requireActivity()).goToFragment(new Catches(), true));
 
         //set users data for caught fish
         analyzeFish();
@@ -397,9 +386,7 @@ public class MainFragment extends Fragment {
         }
         SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"last_weather", weatherArrayList);
         SharedPreferences sharedPref = requireContext().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
-        Calendar cal = Calendar.getInstance(); // Save as object created
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy-HH:mm");
-        sharedPref.edit().putString("last_weather_update", date.format(cal.getTime())).apply();
+        sharedPref.edit().putString("last_weather_update", getCurrentDateAndTime()).apply();
         updateInfoFromArrayList(weatherArrayList.get(0));
         dayTracker = 0;
         refreshPage();
@@ -553,10 +540,14 @@ public class MainFragment extends Fragment {
 
             //fill hashmap: locality + caught weight
             //if city already in hashmap
-            if(fishByCity.containsKey(fish.locality)){
+            if(fishByCity.containsKey(fish.locality)) {
 
                 //get old weight for city
-                old_Weight = fishByCity.get(fish.locality);
+                try {
+                    old_Weight = fishByCity.get(fish.locality);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
 
                 //convert new weight in city to KG´s before saving
                 if(fish.isInGrams()) {
@@ -636,13 +627,13 @@ public class MainFragment extends Fragment {
         return rank;
     }
 
+    public String getCurrentDateAndTime () {
+        Calendar cal = Calendar.getInstance();
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy-HH:mm");
+        return date.format(cal.getTime());
+    }
+
     public void refreshPage() {
-        Fragment refresh = new MainFragment();
-        FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
-                R.anim.fade_in,
-                R.anim.fade_out
-        );
-        transaction.replace(R.id.container_fragment, refresh);
-        transaction.commit();
+        ((MainInterface)requireActivity()).goToFragment(new MainFragment(), true);
     }
 }

@@ -2,6 +2,8 @@ package com.example.vko11v3;
 
 import android.view.View;
 
+import androidx.fragment.app.Fragment;
+
 // Explained in MainActivity
 
 public interface MainInterface {
@@ -13,4 +15,5 @@ public interface MainInterface {
     void showImageFullscreen(Fish fish);
     void startGoogleMaps(Fish fish);
     void makeToast(String text);
+    void goToFragment (Fragment fragment, boolean animated);
 }

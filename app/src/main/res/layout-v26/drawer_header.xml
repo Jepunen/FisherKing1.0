@@ -10,8 +10,6 @@
         android:layout_width="72dp"
         android:layout_height="57dp"
         android:contentDescription="@string/app_name"
-        android:clickable="true"
-        android:focusable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.047"
@@ -24,8 +22,9 @@
 
     <TextView
         android:id="@+id/drawer_header"
-        android:layout_width="189dp"
-        android:layout_height="42dp"
+        android:layout_width="219dp"
+        android:layout_height="36dp"
+        android:autoSizeTextType="uniform"
         android:gravity="start|center_vertical"
         android:shadowColor="#303030"
         android:shadowDx="1"
@@ -33,13 +32,12 @@
         android:text="@string/header_text"
         android:textAppearance="@style/TextAppearance.AppCompat.Display3"
         android:textSize="20sp"
-        android:autoSizeTextType="uniform"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.178"
+        app:layout_constraintHorizontal_bias="0.221"
         app:layout_constraintStart_toEndOf="@+id/drawerImageView"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.827" />
+        app:layout_constraintVertical_bias="0.851" />
 
     <View
         android:id="@+id/divider2"

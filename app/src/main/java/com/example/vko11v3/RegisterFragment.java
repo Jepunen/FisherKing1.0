@@ -120,12 +120,6 @@ public class RegisterFragment extends Fragment {
 
     // Goes to the login fragment
     private void goToLoginPage () {
-        Fragment login = new LogInFragment();
-        FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
-                R.anim.fade_in,
-                R.anim.fade_out
-        );
-        transaction.replace(R.id.container_fragment, login );
-        transaction.commit();
+        ((MainInterface)requireActivity()).goToFragment(new LogInFragment(), true);
     }
 }
