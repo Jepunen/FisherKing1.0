@@ -13,7 +13,7 @@
     <string name="login">Login</string>
     <string name="login_fingerprint">Login using fingerprint</string>
     <string name="register">Register</string>
-    <string name="no_account">Don\'t have an account yet?</string>
+    <string name="no_account">Don\'t have an account yet? Click here!</string>
     <string name="back_to_login">Back to login</string>
     <string name="wrong_credentials">Incorrect username or password</string>
     <string name="empty_field">All fields required for registration</string>
@@ -76,6 +76,7 @@
     <string name="weathericon">WeatherIcon</string>
     <string name="sunrise">Sunrise</string>
     <string name="go_to_latest_catches">Go to latest catches</string>
+    <string name="login_with_biometrics">Login with biometrics</string>
     <!-- NEW FISH POPUP - END -->
 
 </resources>

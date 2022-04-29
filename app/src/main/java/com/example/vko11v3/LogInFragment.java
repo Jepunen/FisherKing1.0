@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -65,14 +66,8 @@ public class LogInFragment extends Fragment {
         });
 
         // "Register" button, redirects to register page
-        Button registerButton = view.findViewById(R.id.loginRegisterButton);
+        TextView registerButton = view.findViewById(R.id.loginRegisterButton);
         registerButton.setOnClickListener(view12 -> ((MainInterface)requireActivity()).goToFragment(new RegisterFragment(), true));
-
-        // Textview "forgot password" click, open reset password fragment
-        TextView resetPassword = view.findViewById(R.id.forgotPassword);
-        // Set visibility to VISIBLE if add reset password
-        resetPassword.setVisibility(View.GONE);
-        resetPassword.setOnClickListener(view1 -> ((MainInterface)requireActivity()).goToFragment(new ResetPassword(), true));
 
         // -- Biometrics login - START --
         // Initialize executor and prompt for biometrics
@@ -125,7 +120,7 @@ public class LogInFragment extends Fragment {
                 .build();
 
         // "Login with fingerprint" button
-        Button fingerprint = view.findViewById(R.id.fingerPrintLogin);
+        ImageView fingerprint = view.findViewById(R.id.fingerPrintLogin);
         fingerprint.setOnClickListener(view1 -> {
             // Show biometric prompt
             biometricPrompt.authenticate(promptInfo);
