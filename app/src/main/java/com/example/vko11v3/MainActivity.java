@@ -72,7 +72,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // -- Load first fragment --
         fragmentManager = getSupportFragmentManager();
-        fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.fade_in,
+                R.anim.fade_out
+        );
 
         // Start from home page listener
         homeStartPage = navigationView.getMenu().findItem(R.id.navigationHomeStart);
@@ -85,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Check if user has "Remember me" option checked, and who is logged in
         // depending on that set the default fragment as login fragment or main fragment
-        if (sharedPref.getString("logged_in_as", null) != null) {
+        if (!sharedPref.getString("logged_in_as", null).equals("null")) {
 
             // If the user wants to always start from home page
             if ( !sharedPref.getBoolean("always_start_from_home", false) ) {
@@ -147,25 +150,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        drawerLayout.closeDrawer(GravityCompat.START);
         // Home page
         if (menuItem.getItemId() == R.id.navigationHome) {
             fragmentManager = getSupportFragmentManager();
-            fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out
+            );
             fragmentTransaction.replace(R.id.container_fragment, new MainFragment());
             fragmentTransaction.commit();
         }
         // 2nd page - Hidden currently, no need atm
         if (menuItem.getItemId() == R.id.navigationSettings) {
             fragmentManager = getSupportFragmentManager();
-            fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out
+            );
             fragmentTransaction.replace(R.id.container_fragment, new SettingsFragment());
             fragmentTransaction.commit();
         }
         // All catches
         if (menuItem.getItemId() == R.id.navigationCatches) {
             fragmentManager = getSupportFragmentManager();
-            fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out
+            );
             fragmentTransaction.replace(R.id.container_fragment, new Catches());
             fragmentTransaction.commit();
         }
@@ -180,10 +191,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             // Redirect to login page
             fragmentManager = getSupportFragmentManager();
-            fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out
+            );
             fragmentTransaction.replace(R.id.container_fragment, new LogInFragment());
             fragmentTransaction.commit();
         }
+        drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 

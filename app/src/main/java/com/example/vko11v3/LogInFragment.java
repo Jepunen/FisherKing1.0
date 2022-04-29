@@ -69,7 +69,10 @@ public class LogInFragment extends Fragment {
         Button registerButton = view.findViewById(R.id.loginRegisterButton);
         registerButton.setOnClickListener(view12 -> {
             Fragment register = new RegisterFragment();
-            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out
+            );
             transaction.replace(R.id.container_fragment, register );
             transaction.commit();
         });
@@ -80,7 +83,10 @@ public class LogInFragment extends Fragment {
         resetPassword.setVisibility(View.GONE);
         resetPassword.setOnClickListener(view1 -> {
             Fragment reset = new ResetPassword();
-            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out
+            );
             transaction.replace(R.id.container_fragment, reset);
             transaction.commit();
         });
@@ -113,7 +119,7 @@ public class LogInFragment extends Fragment {
                     ((MainInterface) requireActivity()).showAddUsernamePopup(view);
                 }
                 // Set user as logged in
-                String user = sharedPref.getString("biometric_user", null);
+                String user = sharedPref.getString("biometric_user", "null");
                 sharedPref.edit().putString("current_user", user).apply();
                 sharedPref.edit().putString("logged_in_as", user).apply();
                 // Update nav header
@@ -185,7 +191,10 @@ public class LogInFragment extends Fragment {
     // Redirects user to home fragment
     private void goToHomeFragment() {
         Fragment main = new MainFragment();
-        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
+                R.anim.fade_in,
+                R.anim.fade_out
+        );
         transaction.replace(R.id.container_fragment, main );
         transaction.commit();
     }

@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -44,6 +46,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -104,7 +108,7 @@ public class MainFragment extends Fragment {
     double total_weight = 0.0;
     double old_Weight = 0.0;
     double new_weight = 0.0;
-    String maxCity = null;
+    String maxCity = "No data";
     double maxCity_weight = 0.0;
     HashMap<String, Double> fishByCity = new HashMap<String, Double>();
 
@@ -117,7 +121,8 @@ public class MainFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_main, container, false);
     }
 
-    @SuppressLint("CommitPrefEdits")
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @SuppressLint({"CommitPrefEdits", "SetTextI18n"})
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -173,7 +178,23 @@ public class MainFragment extends Fragment {
         FloatingActionButton addCatch = view.findViewById(R.id.floatingAddCatch);
         addCatch.setOnClickListener(view12 -> ((MainInterface) requireActivity()).showAddCatchPopup(view12));
 
-        getLocationForecast();
+        String lastWeatherUpdate = sharedPref.getString("last_weather_update", null);
+        if (lastWeatherUpdate != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy-HH:mm", Locale.ENGLISH);
+            Calendar cal = Calendar.getInstance();
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy-HH:mm");
+            String currentTime = date.format(cal.getTime());
+            LocalDate lastUpdate = LocalDate.parse(lastWeatherUpdate, formatter);
+            LocalDate currTime   = LocalDate.parse(currentTime, formatter);
+
+            if (!lastUpdate.equals(currTime)) {
+                getLocationForecast();
+            } else {
+                System.out.println("*********** Today's weather already fetched ***********");
+            }
+        } else {
+            getLocationForecast();
+        }
 
         //"Pre"Serialize arraylist if empty
         @SuppressLint("SdCardPath") File f = new File("/data/data/com.example.vko11v3/files/last_weather");
@@ -209,7 +230,10 @@ public class MainFragment extends Fragment {
         });
         goToCatches.setOnClickListener(view1 -> {
             Fragment catches = new Catches();
-            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out
+            );
             transaction.replace(R.id.container_fragment, catches);
             transaction.commit();
         });
@@ -218,10 +242,14 @@ public class MainFragment extends Fragment {
         analyzeFish();
         rank = fishingRank(total_weight);
         //totalCatches.setText("Your fish total"+ total_weight);
-        totalCatches.setText("Your fish total: "+Math.round(total_weight*10.0)/10.0+" kg");
-        fisherRank.setText("Your rank: "+rank);
-        bestCity.setText("Best location: "+maxCity+", "+ maxCity_weight+" kg");
+        totalCatches.setText("Your fish total: " + Math.round(total_weight*10.0)/10.0 + " kg");
+        fisherRank.setText("Your rank: " + rank);
+        bestCity.setText("Best location: " + maxCity + ", " + maxCity_weight + " kg");
 
+        onScreenDayOfWeek.setOnClickListener(view1 -> {
+            getLocationForecast();
+            Toast.makeText(requireContext(), "Trying to refresh location data...", Toast.LENGTH_SHORT).show();
+        });
     }
 
     // Gets the users LastLocation and if successfully gets location
@@ -368,6 +396,14 @@ public class MainFragment extends Fragment {
             e.printStackTrace();
         }
         SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"last_weather", weatherArrayList);
+        SharedPreferences sharedPref = requireContext().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+        Calendar cal = Calendar.getInstance(); // Save as object created
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy-HH:mm");
+        sharedPref.edit().putString("last_weather_update", date.format(cal.getTime())).apply();
+        updateInfoFromArrayList(weatherArrayList.get(0));
+        dayTracker = 0;
+        refreshPage();
+        ((MainInterface)requireActivity()).makeToast("Weather data updated!");
     }
 
     @SuppressLint("SetTextI18n")
@@ -375,7 +411,7 @@ public class MainFragment extends Fragment {
         String json = getJSONForecast(URLWeather);
         System.out.println("JSON: "+json);
         try {
-            JSONObject jsonObject = new JSONObject(json);
+            new JSONObject(json);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -563,7 +599,7 @@ public class MainFragment extends Fragment {
             }*/
             System.out.println("City: " + i + ", Fish weight: " + fishByCity.get(i));
         }
-        System.out.println("*** Your best city in fish caught: "+maxCity+" : "+maxCity_weight+" ***");
+        System.out.println("*** Your best city in fish caught: " + maxCity + " : " + maxCity_weight + " ***");
 
     }
 
@@ -600,4 +636,13 @@ public class MainFragment extends Fragment {
         return rank;
     }
 
+    public void refreshPage() {
+        Fragment refresh = new MainFragment();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
+                R.anim.fade_in,
+                R.anim.fade_out
+        );
+        transaction.replace(R.id.container_fragment, refresh);
+        transaction.commit();
+    }
 }

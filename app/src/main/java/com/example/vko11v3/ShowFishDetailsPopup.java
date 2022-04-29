@@ -171,7 +171,10 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
 
                     // Refresh recyclerView
                     Fragment catches = new Catches();
-                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
+                            R.anim.fade_in,
+                            R.anim.fade_out
+                    );
                     transaction.replace(R.id.container_fragment, catches ); // give your fragment container id in first parameter
                     transaction.commit();
                 }).setNegativeButton("Add Picture", null)
@@ -212,7 +215,10 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
 
                 // Refresh recyclerView
                 Fragment catches = new Catches();
-                FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
+                        R.anim.fade_in,
+                        R.anim.fade_out
+                );
                 transaction.replace(R.id.container_fragment, catches ); // give your fragment container id in first parameter
                 transaction.commit();
             });
