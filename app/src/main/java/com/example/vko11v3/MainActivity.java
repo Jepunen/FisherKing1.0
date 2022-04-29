@@ -182,7 +182,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
-        goToFragment(new MainFragment(), true);
+        SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+        if (sharedPref.getString("logged_in_as", null) != null) {
+            goToFragment(new MainFragment(), true);
+        } else {
+            goToFragment(new LogInFragment(), true);
+        }
+
     }
 
 

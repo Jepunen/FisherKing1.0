@@ -10,14 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -96,7 +94,7 @@ public class RegisterFragment extends Fragment {
             }
         });
         // "Go back" button on top left of register page
-        ImageButton goBack = view.findViewById(R.id.registerGoBack);
+        TextView goBack = view.findViewById(R.id.registerBackBtn);
         goBack.setOnClickListener(view12 -> goToLoginPage());
 
         // Button for wiping user data file

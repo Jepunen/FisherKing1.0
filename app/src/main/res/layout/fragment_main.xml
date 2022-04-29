@@ -6,19 +6,18 @@
     android:layout_height="match_parent">
 
     <!-- Tästä alkaa location TextViewt -->
+
     <TextView
         android:id="@+id/rankTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:text="You have no rank"
+        android:layout_marginTop="4dp"
+        android:text="@string/you_have_no_rank"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/goToCatchesPageBtn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.531"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sunriseSunsetImageView"
-        app:layout_constraintVertical_bias="0.507" />
+        app:layout_constraintTop_toBottomOf="@+id/totalCatchesTextView" />
 
     <TextView
         android:id="@+id/temperatureTextView"
@@ -43,19 +42,20 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingAddCatch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="61dp"
+        android:layout_height="58dp"
         android:clickable="true"
         android:contentDescription="@string/add"
         android:focusable="true"
         app:backgroundTint="@color/purple_200"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.95"
+        app:layout_constraintHorizontal_bias="0.954"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.957"
-        app:srcCompat="@drawable/add" />
+        app:layout_constraintVertical_bias="0.976"
+        app:srcCompat="@drawable/add"
+        tools:ignore="ImageContrastCheck" />
 
     <TextView
         android:id="@+id/dayStringTextView"
@@ -70,7 +70,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="TouchTargetSizeCheck" />
+        tools:ignore="TouchTargetSizeCheck,DuplicateSpeakableTextCheck" />
 
     <ImageView
         android:id="@+id/previousDayButton"
@@ -164,7 +164,8 @@
         app:layout_constraintHorizontal_bias="0.98"
         app:layout_constraintStart_toEndOf="@+id/feelsLikeTextView"
         app:layout_constraintTop_toBottomOf="@+id/locality"
-        app:srcCompat="@drawable/w01d" />
+        app:srcCompat="@drawable/w01d"
+        tools:ignore="ImageContrastCheck" />
 
     <TextView
         android:id="@+id/weatherText"
@@ -219,13 +220,12 @@
         android:id="@+id/goToCatchesPageBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
+        android:layout_marginBottom="56dp"
         android:text="@string/go_to_latest_catches"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sunriseSunsetImageView"
-        app:layout_constraintVertical_bias="0.593" />
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/sunriseSunsetImageView"
@@ -274,7 +274,8 @@
         android:contentDescription="@string/_0"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/weatherText"
-        app:srcCompat="@drawable/wind" />
+        app:srcCompat="@drawable/wind"
+        tools:ignore="ImageContrastCheck" />
 
     <TextView
         android:id="@+id/windSpeedStatic"
@@ -289,11 +290,11 @@
         android:id="@+id/totalCatchesTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="100dp"
-        android:text="No caught fish"
+        android:layout_marginTop="28dp"
+        android:text="@string/no_caught_fish"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/goToCatchesPageBtn"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sunriseSunsetImageView" />
 
@@ -301,15 +302,14 @@
         android:id="@+id/bestCityTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:text="No favourite place"
+        android:text="@string/no_favourite_place"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/goToCatchesPageBtn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.52"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sunriseSunsetImageView"
-        app:layout_constraintVertical_bias="0.763" />
+        app:layout_constraintTop_toBottomOf="@+id/rankTextView"
+        app:layout_constraintVertical_bias="0.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

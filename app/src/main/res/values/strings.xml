@@ -14,7 +14,7 @@
     <string name="login_fingerprint">Login using fingerprint</string>
     <string name="register">Register</string>
     <string name="no_account">Don\'t have an account yet? Click here!</string>
-    <string name="back_to_login">Back to login</string>
+    <string name="back_to_login">← Back to login</string>
     <string name="wrong_credentials">Incorrect username or password</string>
     <string name="empty_field">All fields required for registration</string>
     <string name="password_requirements">
@@ -53,8 +53,6 @@
     <string name="fish_length">Length</string>
     <string name="retake_picture">Retake picture</string>
     <string name="image_of_fish">Image of fish</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="verification_code">Verification code</string>
     <string name="picture_of_a_fish">Picture of a fish</string>
     <string name="caught_fish">History</string>
@@ -67,16 +65,20 @@
     <string name="morning_0_c">Morning 0°C</string>
     <string name="evening_0_c">Evening 0°C</string>
     <string name="night_0_c">Night 0°C</string>
-    <string name="_0_m_s">0 m/s</string>
-    <string name="_00_00">00:00</string>
+    <string name="_0_m_s" translatable="false">0 m/s</string>
+    <string name="_00_00" translatable="false">00:00</string>
     <string name="no_data">No Data</string>
     <string name="goback">GoBack</string>
     <string name="gonext">GoNext</string>
     <string name="enable_allow_location">Enable / allow location</string>
-    <string name="weathericon">WeatherIcon</string>
+    <string name="weathericon" translatable="false">WeatherIcon</string>
     <string name="sunrise">Sunrise</string>
     <string name="go_to_latest_catches">Go to latest catches</string>
     <string name="login_with_biometrics">Login with biometrics</string>
+    <string name="no_caught_fish">No caught fish</string>
+    <string name="you_have_no_rank">You have no rank</string>
+    <string name="no_favourite_place">No favourite place</string>
+    <string name="wipe_user_data">Wipe user data</string>
     <!-- NEW FISH POPUP - END -->
 
 </resources>

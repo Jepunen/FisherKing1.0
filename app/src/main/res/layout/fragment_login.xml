@@ -61,6 +61,7 @@
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_marginStart="8dp"
+            android:contentDescription="@string/_0"
             app:layout_constraintBottom_toBottomOf="@+id/loginUsername"
             app:layout_constraintEnd_toEndOf="@+id/loginUsername"
             app:layout_constraintHorizontal_bias="0.0"
@@ -73,6 +74,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginStart="5dp"
+            android:contentDescription="@string/_00_00"
             app:layout_constraintBottom_toBottomOf="@+id/passwordEditText"
             app:layout_constraintEnd_toEndOf="@+id/passwordEditText"
             app:layout_constraintHorizontal_bias="0.0"
@@ -99,7 +101,7 @@
 
         <Button
             android:id="@+id/loginButton"
-            android:layout_width="86dp"
+            android:layout_width="104dp"
             android:layout_height="43dp"
             android:fontFamily="@font/raleway_medium"
             android:text="@string/login"
@@ -107,7 +109,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/loginRememberMe"
-            tools:ignore="TouchTargetSizeCheck" />
+            tools:ignore="TouchTargetSizeCheck,DuplicateSpeakableTextCheck" />
 
         <TextView
             android:id="@+id/textView15"
@@ -151,6 +153,7 @@
         android:id="@+id/imageView2"
         android:layout_width="304dp"
         android:layout_height="178dp"
+        android:contentDescription="@string/back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
@@ -165,6 +168,7 @@
         android:layout_height="87dp"
         android:layout_marginTop="28dp"
         android:clickable="true"
+        android:contentDescription="@string/app_name"
         android:focusable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -18,14 +18,14 @@
     <string name="no_account">Etkö ole rekisteröitynyt?</string>
     <string name="back_to_login">Takaisin kirjautumiseen</string>
     <string name="wrong_credentials">Väärä käyttäjätunnus tai salasana</string>
-    <string name="empty_field">Kaikki tiedot ovat pakollisia</string>
+    <string name="empty_field">Kaikki kentät ovat pakollisia</string>
     <string name="password_requirements">
-        Password requirements\n
-        \t\u2022 12-20 characters\n
-        \t\u2022 a lower case character\n
-        \t\u2022 an upper case character\n
-        \t\u2022 a number\n
-        \t\u2022 a special character\n
+        Salasana vaatimukset\n
+        \t\u2022 12-20 merkkiä\n
+        \t\u2022 pieni kirjain\n
+        \t\u2022 iso kirjain\n
+        \t\u2022 numero\n
+        \t\u2022 erikoismerkki\n
     </string>
     <!-- LOGIN / REGISTER PAGE TEXT - END -->
 
@@ -38,6 +38,7 @@
     <string name="settings">Asetukset</string>
     <string name="night_mode">Yö-tila</string>
     <string name="logout">Kirjaudu ulos</string>
+    <string name="start_from_home_page">Avaa kotinäytölle</string>
     <!-- NAVIGATION MENU - END -->
 
     <!-- USERNAME POPUP - START -->
@@ -54,8 +55,29 @@
     <string name="fish_length">Pituus</string>
     <string name="retake_picture">Ota uusi kuva</string>
     <string name="image_of_fish">Kuva saaliista</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="verification_code">Vahvistus koodi</string>
+    <string name="picture_of_a_fish">Kuva kalasta</string>
+    <string name="caught_fish">Historia</string>
+    <string name="navigationmaps">Kartta</string>
+    <string name="c">C</string>
+    <string name="sunset">Auringonlasku</string>
+    <string name="wind_speed">Tuulen nopeus</string>
+    <string name="_0">0</string>
+    <string name="feels_like_0_c">Tuntuu kuin 0°C</string>
+    <string name="morning_0_c">Aamu 0°C</string>
+    <string name="evening_0_c">Ilta 0°C</string>
+    <string name="night_0_c">Yö 0°C</string>
+    <string name="no_data">Ei dataa</string>
+    <string name="goback">Takaisin</string>
+    <string name="gonext">Seuraava</string>
+    <string name="enable_allow_location">Salli sijainnin käyttö</string>
+    <string name="sunrise">Auringonnousu</string>
+    <string name="go_to_latest_catches">Katso viimeisimmät kalat</string>
+    <string name="login_with_biometrics">Kirjaudu sisään sormenjäljellä</string>
+    <string name="no_caught_fish">Ei kaloja</string>
+    <string name="you_have_no_rank">Ei tasoa saatavilla</string>
+    <string name="no_favourite_place">Ei kaloja</string>
+    <string name="wipe_user_data">Wipe user data</string>
     <!-- NEW FISH POPUP - END -->
 
 </resources>

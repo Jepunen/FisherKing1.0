@@ -22,8 +22,8 @@
 
     <TextView
         android:id="@+id/drawer_header"
-        android:layout_width="219dp"
-        android:layout_height="36dp"
+        android:layout_width="183dp"
+        android:layout_height="34dp"
         android:autoSizeTextType="uniform"
         android:gravity="start|center_vertical"
         android:shadowColor="#303030"
@@ -34,10 +34,10 @@
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.221"
+        app:layout_constraintHorizontal_bias="0.185"
         app:layout_constraintStart_toEndOf="@+id/drawerImageView"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.851" />
+        app:layout_constraintVertical_bias="0.857" />
 
     <View
         android:id="@+id/divider2"
