@@ -15,4 +15,9 @@
         <item name="android:fontFamily">@font/raleway_medium</item>
         <item name="fontFamily">@font/raleway_medium</item>
     </style>
+
+    <style name="ThemeOverlay.Vko11V3.FullscreenContainer" parent="">
+        <item name="fullscreenBackgroundColor">@color/light_blue_900</item>
+        <item name="fullscreenTextColor">@color/light_blue_A400</item>
+    </style>
 </resources>

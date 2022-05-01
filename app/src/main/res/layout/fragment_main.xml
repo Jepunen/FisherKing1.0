@@ -200,7 +200,7 @@
         android:gravity="start"
         android:text="@string/sunrise"
         app:layout_constraintEnd_toStartOf="@+id/sunriseSunsetImageView"
-        app:layout_constraintHorizontal_bias="0.702"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sunriseTimeTextView" />
 
@@ -208,7 +208,6 @@
         android:id="@+id/sunsetStatic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="23dp"
         android:gravity="end"
         android:text="@string/sunset"
         app:layout_constraintEnd_toEndOf="parent"
@@ -220,17 +219,17 @@
         android:id="@+id/goToCatchesPageBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="56dp"
         android:text="@string/go_to_latest_catches"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bestCityTextView"
+        app:layout_constraintVertical_bias="0.712" />
 
     <ImageView
         android:id="@+id/sunriseSunsetImageView"
-        android:layout_width="170dp"
-        android:layout_height="100dp"
+        android:layout_width="149dp"
+        android:layout_height="93dp"
         android:layout_marginTop="8dp"
         android:contentDescription="@string/_0"
         app:layout_constraintEnd_toEndOf="parent"
@@ -290,13 +289,14 @@
         android:id="@+id/totalCatchesTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
         android:text="@string/no_caught_fish"
         android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sunriseSunsetImageView" />
+        app:layout_constraintTop_toBottomOf="@+id/sunriseSunsetImageView"
+        app:layout_constraintVertical_bias="0.100000024" />
 
     <TextView
         android:id="@+id/bestCityTextView"
@@ -304,12 +304,10 @@
         android:layout_height="wrap_content"
         android:text="@string/no_favourite_place"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/goToCatchesPageBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rankTextView"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/rankTextView" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,9 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
-import android.text.SpannableString;
-import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.File;
 import java.util.ArrayList;
 
 public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecyclerViewAdapter.MyViewHolder> {
@@ -49,43 +45,43 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
     @Override
     public void onBindViewHolder(@NonNull CatchesRecyclerViewAdapter.MyViewHolder holder, @SuppressLint("RecyclerView") int position) {
 
+        holder.itemView.setLongClickable(true);
+
         // Initialize the values for each card in recyclerView
         // and pass them to ViewHolder
         Fish fish = catches.get(position);
-        if (fish.getWeight() == 0.0) {
-            holder.title.setText(fish.getTitle() + " / weight not set" );
+        holder.title.setText(fish.getTitle());
+
+        if ( fish.isInGrams() ) {
+            holder.details.setText((int) Math.round(fish.getWeight()) + "g" + " - " + (int) Math.round(fish.getLength()) + "cm");
         } else {
-            if ( fish.isInGrams() ) {
-                holder.title.setText(fish.getTitle() + " / " + (int) Math.round(fish.getWeight()) + "g");
-            } else {
-                holder.title.setText(fish.getTitle() + " / " + fish.getWeight() + "kg");
-            }
+            holder.details.setText(fish.getWeight() + "kg" + " - " + (int) Math.round(fish.getLength()) + "cm");
         }
-        holder.details.setText(fish.getDate());
-        if ( fish.getLocality() == null ) {
-            holder.timePlace.setText("Location data not saved");
-        } else {
-            SpannableString content = new SpannableString(fish.getLocality() + ", open in Maps");
-            content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
-            holder.timePlace.setText(content);
-        }
+        holder.timePlace.setText(fish.getDate());
         holder.fish = fish;
         holder.position = position;
 
-        // Get image folder Directory
-        File mediaStorageDir = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "FisherKing");
-        String storageDir = mediaStorageDir.getAbsolutePath();
-
         // Convert from JPG -> Bitmap and
         // add the image to the the recyclerView card
-        Bitmap myBitmap = BitmapFactory.decodeFile(storageDir + "/" + catches.get(position).getPicture());
-        if (!catches.get(position).getPicture().equals("null")) {
-            holder.image.setRotation(90);
-            holder.image.setImageBitmap(myBitmap);
-        } else { // no image == no ImageView
-            holder.image.setVisibility(View.GONE);
+        if (catches.get(position).getLocality() == null) {
+            holder.mapsPinImage.setVisibility(View.GONE);
+            holder.imageText.setVisibility(View.GONE);
+        } else {
+            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.pin);
+            holder.mapsPinImage.setImageBitmap(bitmap);
+            holder.mapsPinImage.setVisibility(View.VISIBLE);
+        }
+        if (catches.get(position).getPicture().equals("null")) {
+            holder.openPicture.setVisibility(View.GONE);
+            holder.openPictureText.setVisibility(View.GONE);
+        } else {
+            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.imageview);
+            holder.openPicture.setImageBitmap(bitmap);
+            holder.openPicture.setVisibility(View.VISIBLE);
         }
     }
+
+
 
     @Override // How many items in total
     public int getItemCount() {
@@ -96,7 +92,10 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView title, details, timePlace;
-        ImageView image;
+        ImageView mapsPinImage;
+        ImageView openPicture;
+        TextView openPictureText;
+        TextView imageText;
         CardView card;
         Fish fish;
         int position;
@@ -109,17 +108,26 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
             title = itemView.findViewById(R.id.recyclerRowTitle);
             details = itemView.findViewById(R.id.recyclerRowDetail);
             timePlace = itemView.findViewById(R.id.recyclerRowTimePlace);
+            imageText = itemView.findViewById(R.id.recyclerImageTextView);
+            openPictureText = itemView.findViewById(R.id.openPictureText);
 
             // Opens the view / edit fish details AlertDialog
             card = itemView.findViewById(R.id.cardView);
             card.setOnClickListener(view -> rListener.openDetailsPopup(fish, position));
 
-            // Opens the image in AlertDialog with bigger ImageView
-            image = itemView.findViewById(R.id.recyclerImageView);
-            image.setOnClickListener(view -> rListener.openFullScreenImage(fish));
+            openPicture = itemView.findViewById(R.id.openPictureFS);
+            openPicture.setOnClickListener(view -> rListener.openFullScreenImage(fish));
 
-            // Opens the location in google maps
-            timePlace.setOnClickListener(view -> rListener.startGoogleMaps(fish));
+            // Opens location in google maps
+            mapsPinImage = itemView.findViewById(R.id.recyclerImageView);
+            mapsPinImage.setOnClickListener(view -> {
+                if (fish.getLocality() != null)
+                    rListener.startGoogleMaps(fish);
+            });
+            imageText.setOnClickListener(view -> {
+                if (fish.getLocality() != null)
+                    rListener.startGoogleMaps(fish);
+            });
         }
     }
 

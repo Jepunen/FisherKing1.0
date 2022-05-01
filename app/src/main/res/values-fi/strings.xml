@@ -78,6 +78,9 @@
     <string name="you_have_no_rank">Ei tasoa saatavilla</string>
     <string name="no_favourite_place">Ei kaloja</string>
     <string name="wipe_user_data">Wipe user data</string>
+    <string name="show_on_map">Avaa kartta</string>
+    <string name="open_picture">Avaa kuva</string>
+    <string name="go_back">Takaisin</string>
     <!-- NEW FISH POPUP - END -->
 
 </resources>

@@ -79,6 +79,9 @@
     <string name="you_have_no_rank">You have no rank</string>
     <string name="no_favourite_place">No favourite place</string>
     <string name="wipe_user_data">Wipe user data</string>
+    <string name="show_on_map">Open map</string>
+    <string name="open_picture">Open picture</string>
+    <string name="go_back">Go back</string>
     <!-- NEW FISH POPUP - END -->
 
 </resources>

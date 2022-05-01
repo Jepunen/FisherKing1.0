@@ -161,11 +161,15 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                     length = 0.0;
 
                     // If weight / length != 0, set values
-                    if ( !TextUtils.isEmpty(newFishWeight.getText().toString()) ) {
-                        weight = Double.parseDouble(newFishWeight.getText().toString());
-                    }
-                    if ( !TextUtils.isEmpty(newFishLength.getText().toString()) ) {
-                        length = Double.parseDouble(newFishLength.getText().toString());
+                    try {
+                        if ( !TextUtils.isEmpty(newFishWeight.getText().toString()) ) {
+                            weight = Double.parseDouble(newFishWeight.getText().toString());
+                        }
+                        if ( !TextUtils.isEmpty(newFishLength.getText().toString()) ) {
+                            length = Double.parseDouble(newFishLength.getText().toString());
+                        }
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
                     }
 
                     // Get ArrayList from file
@@ -194,11 +198,11 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         super.onResume();
         AlertDialog dialog = (AlertDialog) getDialog();
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(requireContext(), R.color.teal_200));
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(ContextCompat.getColor(requireContext(), R.color.teal_200));
-
         // Disable the "Add" button if Title text field is empty
         buttonCanBePressed(!TextUtils.isEmpty(newFishName.getText().toString()));
+
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_grey));
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(ContextCompat.getColor(requireContext(), R.color.teal_200));
 
         // Camera
         assert dialog != null;
@@ -237,6 +241,11 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         AlertDialog dialog = (AlertDialog) getDialog();
         assert dialog != null;
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(b);
+        if (b) {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(requireContext(), R.color.teal_200));
+        } else {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_grey));
+        }
     }
 
     // Serializes fish and adds it to fList ArrayList

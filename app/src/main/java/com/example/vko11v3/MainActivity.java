@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -26,7 +27,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -37,6 +40,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
+
+import java.io.File;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainInterface {
@@ -191,7 +196,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -304,10 +308,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         dialog.show(getSupportFragmentManager(), "Edit fish details");
     }
 
-    @Override // Shows fullscreen image popup
+    @Override // Shows fullscreen image
     public void showImageFullscreen(Fish fish) {
-        FullScreenImage dialog = new FullScreenImage(fish);
-        dialog.show(getSupportFragmentManager(), "Fullscreen image");
+        File mediaStorageDir = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "FisherKing");
+        String storageDir = mediaStorageDir.getAbsolutePath() + "/" + fish.getPicture();
+        File file = new File(storageDir);
+
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.parse(storageDir), "jpg").setDataAndType(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ?
+                        FileProvider.getUriForFile(this,getPackageName() + ".provider", file) : Uri.fromFile(file),
+                "image/*").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(intent);
     }
 
     @Override

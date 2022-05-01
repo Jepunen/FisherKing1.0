@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -33,6 +34,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -50,8 +53,8 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
     ArrayList<Fish> fList;
 
     // Camera
-    ActivityResultLauncher<Intent> activityResultLauncher;
-    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    ActivityResultLauncher<Intent> activityResultLauncherCamera;
+    ActivityResultLauncher<Intent> activityResultLauncherGallery;
     File photoFile = null;
     String storageDir;
     @SuppressLint("DefaultLocale")
@@ -65,7 +68,7 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
         this.position = pos;
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "DefaultLocale"})
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -88,7 +91,7 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
         }
 
         // Camera
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        activityResultLauncherCamera = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK) {
                 // Image view on popup
                 Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
@@ -100,6 +103,26 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
             }
         });
         // Camera END
+        // Gallery
+        activityResultLauncherGallery = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+
+                Uri imageUri = result.getData().getData();
+                try {
+                    imageFileName = String.format("%d-G.jpg", System.currentTimeMillis());
+                    FileOutputStream out = new FileOutputStream(mediaStorageDir + "/" + imageFileName);
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
+                    bitmap = RotateBitmap(bitmap, 90);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                image.setImageURI(imageUri);
+                image.setVisibility(View.VISIBLE);
+                image.setRotation(0);
+                deleteOldImage = true;
+            }
+        });
 
         // Get elements
         title  = view.findViewById(R.id.detailsFishName);
@@ -128,10 +151,16 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
 
         // Fish includes image -> set visible
         if (!fish.getPicture().equals("null")) {
-            Bitmap bitmap = BitmapFactory.decodeFile(storageDir);
-            image.setImageBitmap(bitmap);
-            image.setRotation(90);
-            image.setVisibility(View.VISIBLE);
+            if (fish.getPicture().contains("-G")) {
+                Bitmap bitmap = BitmapFactory.decodeFile(storageDir);
+                image.setImageBitmap(bitmap);
+                image.setVisibility(View.VISIBLE);
+            } else {
+                Bitmap bitmap = BitmapFactory.decodeFile(storageDir);
+                image.setImageBitmap(bitmap);
+                image.setRotation(90);
+                image.setVisibility(View.VISIBLE);
+            }
         }
 
         builder.setView(view)
@@ -154,9 +183,12 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
                     temp.setTitle(title.getText().toString());
                     try {
                         temp.setWeight(Double.valueOf(weight.getText().toString()));
-                        temp.setLength(Double.valueOf(length.getText().toString()));
                     } catch (NumberFormatException ignored) {
                         temp.setWeight(0.0);
+                    }
+                    try {
+                        temp.setLength(Double.valueOf(length.getText().toString()));
+                    } catch (NumberFormatException ignored) {
                         temp.setLength(0.0);
                     }
                     temp.setInGrams(isChecked);
@@ -171,16 +203,17 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
                     SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fList);
 
                     // Refresh recyclerView
-                    Fragment catches = new Catches();
-                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction().setCustomAnimations(
-                            R.anim.fade_in,
-                            R.anim.fade_out
-                    );
-                    transaction.replace(R.id.container_fragment, catches ); // give your fragment container id in first parameter
-                    transaction.commit();
-                }).setNegativeButton("Add Picture", null)
+                    ((MainInterface)requireActivity()).goToFragment(new Catches(), false);
+                }).setNegativeButton("Add from gallery", null)
                 .setNeutralButton("Delete", ((dialog, i) -> dialog.dismiss()));
         return builder.create();
+    }
+
+    public static Bitmap RotateBitmap(Bitmap source, float angle)
+    {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
     @SuppressLint("SetTextI18n")
@@ -215,19 +248,21 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
                 // Reverse list for recycler view
                 Collections.reverse(fList);
                 SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fList);
-
                 dismiss();
 
                 // Refresh recyclerView
-                ((MainInterface)requireActivity()).goToFragment(new Catches(), true);
+                ((MainInterface)requireActivity()).goToFragment(new Catches(), false);
             });
             alert.setNegativeButton("No", (dialog12, which) -> dialog12.dismiss());
+
             alert.show();
         });
 
         // Camera
         Button addPicture = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
         addPicture.setOnClickListener(view1 -> {
+
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
 
             // Create a File reference for future access
             photoFile = getImageFileUri(imageFileName);
@@ -242,13 +277,15 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
             // So as long as the result is not null, it's safe to use the intent.
             if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
                 // Start the image capture intent to take photo
-                activityResultLauncher.launch(intent);
+                activityResultLauncherGallery.launch(intent);
             }
+            /*Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+            activityResultLauncherGallery.launch(gallery);*/
         });
         if ( image.getDrawable() == null ) {
-            addPicture.setText("Add picture");
+            addPicture.setText("Add from gallery");
         } else {
-            addPicture.setText("Retake picture");
+            addPicture.setText("Change picture");
         }
         // Camera END
     }
