@@ -90,7 +90,6 @@ public class MainFragment extends Fragment {
     ImageView weatherTypeImage;
 
     Button goToCatches;
-    //Button analyzeFish; //temp -> see if needed as button in final version (or display data automatically)
 
     // Get location variables
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -300,7 +299,6 @@ public class MainFragment extends Fragment {
         //https://devqa.io/how-to-parse-json-in-java/
         try {
             //prints info to console from fixed URL:
-            //http://jsonviewer.stack.hu/#https://api.openweathermap.org/data/2.5/onecall?lat=60.984752099999994&lon=25.657131500000002&exclude=hourly,alerts,minutely&appid=8083d74fdf91756ac7b6cba38cd2b8e9
             JSONObject obj = new JSONObject(json);
             JSONArray arr = obj.getJSONArray("daily");
 
@@ -405,7 +403,6 @@ public class MainFragment extends Fragment {
         String response = null;
 
         try {
-            //URL url = new URL("https://api.openweathermap.org/data/2.5/onecall?lat=60.984752099999994&lon=25.657131500000002&exclude=hourly,alerts,minutely&appid=8083d74fdf91756ac7b6cba38cd2b8e9");
             URL url = new URL(URLWeatherForecast);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -503,7 +500,6 @@ public class MainFragment extends Fragment {
             } else {
                 total_weight += fish.weight;
             }
-
 
             //fill hashmap: locality + caught weight
             //if city already in hashmap
