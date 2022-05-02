@@ -75,7 +75,7 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
             holder.openPicture.setVisibility(View.GONE);
             holder.openPictureText.setVisibility(View.GONE);
         } else {
-            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.imageview);
+            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.open_picture);
             holder.openPicture.setImageBitmap(bitmap);
             holder.openPicture.setVisibility(View.VISIBLE);
         }
