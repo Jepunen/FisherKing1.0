@@ -10,7 +10,6 @@ import java.io.ObjectOutputStream;
 public class SerializeFish {
 
     public static final SerializeFish instance = new SerializeFish();
-
     // Data -> File
     public void serializeData(Context c, String fileName, Object data) {
         try {
@@ -22,7 +21,6 @@ public class SerializeFish {
             e.printStackTrace();
         }
     }
-
     // File -> Data
     public <T> T deSerializeData(Context c, String fileName) {
         try {
