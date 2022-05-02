@@ -63,7 +63,6 @@ public class AddUsernamePopup extends AppCompatDialogFragment {
     public void onResume() {
         super.onResume();
         AlertDialog dialog = (AlertDialog) getDialog();
-
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(requireContext(), R.color.teal_200));
 
         assert dialog != null;
@@ -73,7 +72,6 @@ public class AddUsernamePopup extends AppCompatDialogFragment {
         // disable "Add" button by default
         buttonCanBePressed(false);
     }
-
     // Sets the "Add" button active / disabled
     public void buttonCanBePressed(boolean active) {
         AlertDialog dialog = (AlertDialog) getDialog();

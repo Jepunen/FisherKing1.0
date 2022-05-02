@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -40,8 +39,6 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -151,11 +148,10 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
 
         builder.setView(view)
                 .setTitle("Add new fish")
-                // Creates a new fish object and saves it to an array
+                // Creates a new fish object and saves the file
                 .setPositiveButton("Save", (dialogInterface, i) -> {
 
-                    // Title cannot be empty, so set text
-                    // (see buttonCanBePressed())
+                    // Title cannot be empty, so set text (see buttonCanBePressed())
                     title = newFishName.getText().toString();
                     weight = 0.0;
                     length = 0.0;
@@ -187,12 +183,11 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                 })
                 // Listener for this is in onResume method
                 .setNeutralButton("Add picture", null);
-
         // Return AlertDialog builder.crete and .show() in MainActivity
         return builder.create();
     }
 
-    @SuppressLint({"SetTextI18n", "ResourceAsColor"})
+    @SuppressLint({"SetTextI18n"})
     @Override
     public void onResume() {
         super.onResume();
@@ -218,16 +213,14 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
             Uri fileProvider = FileProvider.getUriForFile(requireActivity(), BuildConfig.APPLICATION_ID + ".provider", imageFile);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
 
-            // Launch the camera intent // Start camera app
+            // Launch the camera intent / Start camera app
             if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
                 activityResultLauncher.launch(intent);
             } else {
                 Toast.makeText(requireActivity(), "Couldn't open the camera", Toast.LENGTH_SHORT).show();
             }
         });
-        // Camera END
-
-        // Changes the text of "Add picture"
+        // Changes the text "Add picture"
         // depending if user already taken photo
         if ( imageView.getDrawable() == null ) {
             addPicture.setText("Add picture");
@@ -235,7 +228,6 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
             addPicture.setText("Retake picture");
         }
     }
-
     // Disables / Enables the "Add" button
     public void buttonCanBePressed(boolean b) {
         AlertDialog dialog = (AlertDialog) getDialog();
@@ -247,8 +239,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_grey));
         }
     }
-
-    // Serializes fish and adds it to fList ArrayList
+    // Adds fish to fList ArrayList
     // Then serializes the ArrayList to a file
     private void addFishToFile(Fish fish) {
         fList.add(fish);
@@ -257,7 +248,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         String user = sharedPref.getString("current_user", "");
         SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fList);
     }
-
+    // Deserializes the file and return ArrayList
     private ArrayList<Fish> getFishArrayFromFile() {
 
         // Get current user
@@ -294,11 +285,9 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
         return new File(mediaStorageDir.getPath() + File.separator + imageFileName);
     }
 
-
     // Gets the users LastLocation and if successfully gets location
     // overwrites the saved Fish with one that has location data
     private void getLocation() throws NullPointerException{
-
         try {
             // Check if has permission to use location
             if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -310,7 +299,6 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
                 return;
             }
-
             // Add listener for when the location data is received
             // if no location data is received this never executes
             fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
@@ -339,11 +327,7 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
                         // Overwrites the previously saved fish with one that has the location data
                         Fish fish = new Fish(title, weight, inGrams, length, imageFileName, latitude, longitude, tempCelcius, locality);
                         fList = getFishArrayFromFile();
-
-                        // Remove the previously added fish without location data
                         fList.remove(fList.size() - 1);
-
-                        // Add new fish to file
                         addFishToFile(fish);
 
                     } catch (IOException | NullPointerException e) {
@@ -365,10 +349,8 @@ public class AddNewFishPopup extends AppCompatDialogFragment {
 
         // Gets the JSON from URL with another method
         String json = getJSON(URLWeather);
-
         try {
             JSONObject jsonObject = new JSONObject(json);
-
             // Get the temp from JSON and convert KELVIN -> C
             double tempKelvin = jsonObject.getJSONObject("main").getDouble("temp");
             tempCelcius = tempKelvin - 273.15;

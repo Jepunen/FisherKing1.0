@@ -23,7 +23,6 @@ public class PasswordHashSalt {
         }
         return generatedPassword;
     }
-
     // Returns the salt for HASHING
     public static byte[] getSalt() {
         return "saltForHashing".getBytes(StandardCharsets.UTF_8);

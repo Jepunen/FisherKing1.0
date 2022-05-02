@@ -45,7 +45,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -169,25 +168,19 @@ public class MainFragment extends Fragment {
         // Initialize fusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
-        // Analyze fish button + listener -> TEMP see if needed in final version
-        //analyzeFish = view.findViewById(R.id.analysisBtn);
-        //analyzeFish.setOnClickListener(view1 -> analyzeFish());
-
         // Floating "+" button listener
         FloatingActionButton addCatch = view.findViewById(R.id.floatingAddCatch);
         addCatch.setOnClickListener(view12 -> ((MainInterface) requireActivity()).showAddCatchPopup(view12));
 
+        // Updates the weather if location data available and last update over an hour ago
         String lastWeatherUpdate = sharedPref.getString("last_weather_update", null);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy-HH:mm", Locale.ENGLISH);
         if (lastWeatherUpdate != null) {
             String currentTime = getCurrentDateAndTime();
             LocalDateTime lastUpdate = LocalDateTime.parse(lastWeatherUpdate, formatter);
             LocalDateTime currTime   = LocalDateTime.parse(currentTime, formatter);
-
             if (currTime.isAfter(lastUpdate.plusHours(1))) {
                 getLocationForecast();
-            } else {
-                System.out.println("*********** Weather fetched within 1 hour ***********");
             }
         } else {
             getLocationForecast();
@@ -199,10 +192,12 @@ public class MainFragment extends Fragment {
             SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),"last_weather", weatherArrayList);
         }
 
+        // Get weather data from file
         weatherArrayList = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),"last_weather");
         if (weatherArrayList == null) {weatherArrayList = new ArrayList<>();}
         else if (weatherArrayList.size() > 1) {updateInfoFromArrayList(weatherArrayList.get(0));}
 
+        // Next day arrow
         nextDayWeather.setOnClickListener(view1 -> {
             if (weatherArrayList.size() < 1) {
                 nextDayWeather.setVisibility(View.GONE);
@@ -216,6 +211,7 @@ public class MainFragment extends Fragment {
                 updateInfoFromArrayList(weatherArrayList.get(dayTracker));
             }
         });
+        // Previous day arrow
         previousDayWeather.setOnClickListener(view1 -> {
             if ( dayTracker == 1 ) {
                 previousDayWeather.setVisibility(View.GONE);
@@ -227,10 +223,9 @@ public class MainFragment extends Fragment {
         });
         goToCatches.setOnClickListener(view1 -> ((MainInterface)requireActivity()).goToFragment(new Catches(), true));
 
-        //set users data for caught fish
+        // Set users data for caught fish
         analyzeFish();
         rank = fishingRank(total_weight);
-        //totalCatches.setText("Your fish total"+ total_weight);
         totalCatches.setText("Your fish total: " + Math.round(total_weight*10.0)/10.0 + " kg");
         fisherRank.setText("Your rank: " + rank);
         bestCity.setText("Best location: " + maxCity + ", " + maxCity_weight + " kg");
@@ -242,7 +237,7 @@ public class MainFragment extends Fragment {
     }
 
     // Gets the users LastLocation and if successfully gets location
-    // overwrites the saved Fish with one that has location data
+    // updates the weather information
     @SuppressLint("SetTextI18n")
     private void getLocationForecast() throws NullPointerException{
         try {
@@ -484,12 +479,6 @@ public class MainFragment extends Fragment {
     // Analyze caught fish
     private void analyzeFish() {
         ArrayList<Fish> fishHistory = new ArrayList<>();
-        /*double total_weight = 0.0;
-        double old_Weight = 0.0;
-        double new_weight = 0.0;
-        String maxCity = null;
-        double maxCity_weight = 0.0;
-        HashMap<String, Double> fishByCity = new HashMap<String, Double>();*/
 
         // Get current user
         SharedPreferences sharedPref = requireActivity().getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
@@ -501,28 +490,6 @@ public class MainFragment extends Fragment {
         if(!f.exists() && !f.isDirectory()) {
             SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fishHistory);
         }
-
-        //TEMP - add some fish without location data
-        /*fishHistory = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),user + "_FishList");
-        Fish f1 = new Fish("Särki", 120.0, true, 0.0, "null");
-        Fish f2 = new Fish("Ahven", 300.0, true, 0.0, "null");
-        Fish f3 = new Fish("Kuha", 1.2, false, 0.0, "null");
-        fishHistory.add(f1);
-        fishHistory.add(f2);
-        fishHistory.add(f3);
-
-        //TEMP - add some fish with location data
-        Fish f4 = new Fish("Säynävä", 120.0, true, 0.0, "null", "61.233155", "28.337010", 10.0, "Saimaa");
-        Fish f5 = new Fish("Hauki", 300.0, true, 0.0, "null", "61.233155", "28.337010", 10.0, "Päijänne");
-        Fish f6 = new Fish("Siika", 1.2, false, 0.0, "null", "61.233155", "28.337010", 10.0, "Inari");
-        fishHistory.add(f4);
-        fishHistory.add(f5);
-        fishHistory.add(f6);
-        SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fishHistory);*/
-
-        // Saimaa 61.233155, 28.337010
-        // Näsijärvi 61.671543, 23.739232
-        // Lake Inari 68.969045, 27.643564
 
         // Deserialize existing fish ArrayList from file
         fishHistory = SerializeFish.instance.deSerializeData(requireActivity().getApplicationContext(),user + "_FishList");
@@ -579,19 +546,6 @@ public class MainFragment extends Fragment {
                 maxCity_weight = fishByCity.get(i);
             }
         }
-
-
-        //TEMP - Print analysis to console
-        System.out.println("TOTAL WEIGHT OF YOUR CATCHES: "+ total_weight);
-        System.out.println("TOTAL WEIGHT OF CATCHES BY CITY: ");
-        for (String i : fishByCity.keySet()) {
-            /*if(i != null) {
-                System.out.println("City: " + i + ", Fish weight: " + fishByCity.get(i));
-            }*/
-            System.out.println("City: " + i + ", Fish weight: " + fishByCity.get(i));
-        }
-        System.out.println("*** Your best city in fish caught: " + maxCity + " : " + maxCity_weight + " ***");
-
     }
 
     private String fishingRank(double total_weight) {

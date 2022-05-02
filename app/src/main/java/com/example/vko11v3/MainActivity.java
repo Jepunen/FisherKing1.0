@@ -1,15 +1,12 @@
 package com.example.vko11v3;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -20,7 +17,6 @@ import androidx.fragment.app.FragmentTransaction;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -31,7 +27,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -48,7 +43,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
     ActionBar actionBar;
-    ActionBar homeBtn;
     Toolbar toolbar;
     boolean drawerOpen = false;
     NavigationView navigationView;
@@ -77,21 +71,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         toolbar = findViewById(R.id.toolbar);
 
-        actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setElevation(20);
-        actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_home_24);
-
         drawerLayout = findViewById(R.id.drawer);
         navigationView = findViewById(R.id.navigationView);
         navigationView.setNavigationItemSelectedListener(this);
 
+        actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setElevation(20);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_home_24);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
                 R.string.open, R.string.close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         actionBarDrawerToggle.syncState();
-
 
         // Navigation drawer header text
         View headerView = navigationView.getHeaderView(0);
@@ -113,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 R.anim.fade_in,
                 R.anim.fade_out
         );
-
         // Start from home page listener
         homeStartPage = navigationView.getMenu().findItem(R.id.navigationHomeStart);
         homeStart = homeStartPage.getActionView().findViewById(R.id.drawerSwitch);
@@ -185,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    @Override
+    @Override // Android back button press, return user to main or login page
     public void onBackPressed() {
         SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
         if (sharedPref.getString("logged_in_as", null) != null) {
@@ -193,7 +184,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             goToFragment(new LogInFragment(), true);
         }
-
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -242,12 +232,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (menuItem.getItemId() == R.id.navigationCatches) {
             goToFragment(new Catches(), true);
         }
+        // Top right "HOME"
         if (menuItem.getItemId() == R.id.action_home) {
             goToFragment(new MainFragment(), true);
         }
         // Logout
         if (menuItem.getItemId() == R.id.navigationLogout) {
-
             // Get user data file
             SharedPreferences sharedPref = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
             // Set values to null to indicate user not being logged in

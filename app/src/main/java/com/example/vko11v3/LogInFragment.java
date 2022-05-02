@@ -84,7 +84,6 @@ public class LogInFragment extends Fragment {
                 Toast.makeText(requireActivity(), "Authentication error", Toast.LENGTH_SHORT).show();
             }
 
-            @SuppressLint("CommitPrefEdits")
             @Override // Auth. successful
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);

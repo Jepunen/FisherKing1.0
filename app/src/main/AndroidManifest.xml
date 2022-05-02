@@ -18,11 +18,9 @@
         android:required="false" />
 
     <queries>
-
         <!-- Browser -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
-
             <data android:scheme="http" />
         </intent>
         <!-- Camera -->
@@ -42,7 +40,6 @@
         android:roundIcon="@mipmap/fisher_king_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Vko11V3">
-
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -54,7 +51,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -65,5 +61,4 @@
                 android:resource="@xml/file_paths" />
         </provider>
     </application>
-
 </manifest>

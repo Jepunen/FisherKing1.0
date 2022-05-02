@@ -30,8 +30,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,9 +49,9 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
     String user;
 
     ArrayList<Fish> fList;
-
     // Camera
-    ActivityResultLauncher<Intent> activityResultLauncherCamera;
+    // ActivityResultLauncher<Intent> activityResultLauncherCamera;
+    // Gallery
     ActivityResultLauncher<Intent> activityResultLauncherGallery;
     File photoFile = null;
     String storageDir;
@@ -90,19 +88,18 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
             Log.d("Fisher King", "failed to create directory");
         }
 
-        // Camera
-        activityResultLauncherCamera = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-            if (result.getResultCode() == Activity.RESULT_OK) {
-                // Image view on popup
-                Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-                image.setImageBitmap(bitmap);
-                image.setRotation(90);
-                image.setVisibility(View.VISIBLE);
-                // New image taken so delete old
-                deleteOldImage = true;
-            }
-        });
-        // Camera END
+        // Camera - Not in use but keep for future
+        //activityResultLauncherCamera = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        //     if (result.getResultCode() == Activity.RESULT_OK) {
+        //         // Image view on popup
+        //         Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+        //         image.setImageBitmap(bitmap);
+        //         image.setRotation(90);
+        //         image.setVisibility(View.VISIBLE);
+        //         // New image taken so delete old
+        //         deleteOldImage = true;
+        //     }
+        // });
         // Gallery
         activityResultLauncherGallery = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK) {
@@ -197,7 +194,6 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
                     if (deleteOldImage) {
                         temp.setPicture(imageFileName);
                     }
-
                     // Reverse the list for recyclerView
                     Collections.reverse(fList);
                     SerializeFish.instance.serializeData(requireActivity().getApplicationContext(),user + "_FishList", fList);
@@ -254,7 +250,6 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
                 ((MainInterface)requireActivity()).goToFragment(new Catches(), false);
             });
             alert.setNegativeButton("No", (dialog12, which) -> dialog12.dismiss());
-
             alert.show();
         });
 
@@ -265,7 +260,7 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
 
             // Create a File reference for future access
-            photoFile = getImageFileUri(imageFileName);
+            photoFile = getImageFileUri();
 
             // wrap File object into a content provider
             // required for API >= 24
@@ -276,11 +271,9 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
             // If you call startActivityForResult() using an intent that no app can handle, your app will crash.
             // So as long as the result is not null, it's safe to use the intent.
             if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
-                // Start the image capture intent to take photo
+                // Start the gallery activity to pick a photo
                 activityResultLauncherGallery.launch(intent);
             }
-            /*Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-            activityResultLauncherGallery.launch(gallery);*/
         });
         if ( image.getDrawable() == null ) {
             addPicture.setText("Add from gallery");
@@ -299,7 +292,7 @@ public class ShowFishDetailsPopup extends AppCompatDialogFragment {
 
     // Create a Directory for the photo to be saved at
     @SuppressLint("DefaultLocale")
-    public File getImageFileUri(String fileName) {
+    public File getImageFileUri() {
 
         oldImageName = imageFileName;
         imageFileName = String.format("%d.jpg", System.currentTimeMillis());

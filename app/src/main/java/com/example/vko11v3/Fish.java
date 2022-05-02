@@ -19,7 +19,6 @@ public class Fish implements Serializable {
     Double tempCelcius;
     String locality;
 
-
     //Constructor for when location data is available
     public Fish(String title, Double weight, boolean inGrams,Double length, String picture, String latitude, String longitude, Double tempCelcius, String locality) {
         this.title = title;

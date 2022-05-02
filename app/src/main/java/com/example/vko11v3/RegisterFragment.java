@@ -43,7 +43,6 @@ public class RegisterFragment extends Fragment {
         EditText email    = view.findViewById(R.id.registerEmail);
         // -- Get screen elements by ID - END --
 
-
         // -- Get buttons and add listeners --
         Button register = view.findViewById(R.id.registerButton);
         register.setOnClickListener(view1 -> {
@@ -115,7 +114,6 @@ public class RegisterFragment extends Fragment {
         Matcher matcher = pattern.matcher(password);
         return !matcher.matches();
     }
-
     // Goes to the login fragment
     private void goToLoginPage () {
         ((MainInterface)requireActivity()).goToFragment(new LogInFragment(), true);

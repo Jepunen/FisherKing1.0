@@ -33,7 +33,6 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
     @NonNull
     @Override
     public CatchesRecyclerViewAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
         // Inflate layout and give look to rows
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.recycler_view_row, parent, false);
@@ -48,7 +47,6 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
         holder.itemView.setLongClickable(true);
 
         // Initialize the values for each card in recyclerView
-        // and pass them to ViewHolder
         Fish fish = catches.get(position);
         holder.title.setText(fish.getTitle());
 
@@ -61,8 +59,7 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
         holder.fish = fish;
         holder.position = position;
 
-        // Convert from JPG -> Bitmap and
-        // add the image to the the recyclerView card
+        // Add the images to the the recyclerView card
         if (catches.get(position).getLocality() == null) {
             holder.mapsPinImage.setVisibility(View.GONE);
             holder.imageText.setVisibility(View.GONE);
@@ -88,7 +85,7 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
         return catches.size();
     }
 
-    // Inflates the card with given parameters / info
+    // onClickListeners for card elements
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView title, details, timePlace;
@@ -131,6 +128,7 @@ public class CatchesRecyclerViewAdapter extends RecyclerView.Adapter<CatchesRecy
         }
     }
 
+    // Operations done from MainActivity
     public interface recyclerInterFace {
         void openFullScreenImage(Fish fish);
         void openDetailsPopup(Fish fish, int position);
